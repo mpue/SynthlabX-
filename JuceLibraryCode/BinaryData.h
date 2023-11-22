@@ -1,0 +1,231 @@
+/* =========================================================================================
+
+   This is an auto-generated file: Any edits you make may be overwritten!
+
+*/
+
+#pragma once
+
+namespace BinaryData
+{
+    extern const char*   adder_png;
+    const int            adder_pngSize = 3242;
+
+    extern const char*   adsr_png;
+    const int            adsr_pngSize = 2742;
+
+    extern const char*   apicon_png;
+    const int            apicon_pngSize = 213234;
+
+    extern const char*   appicon_psd;
+    const int            appicon_psdSize = 1705961;
+
+    extern const char*   auxmodule_png;
+    const int            auxmodule_pngSize = 4961;
+
+    extern const char*   backwardsolid_png;
+    const int            backwardsolid_pngSize = 752;
+
+    extern const char*   circlesolid_png;
+    const int            circlesolid_pngSize = 1012;
+
+    extern const char*   clock_png;
+    const int            clock_pngSize = 5554;
+
+    extern const char*   close_png;
+    const int            close_pngSize = 4179;
+
+    extern const char*   delete_png;
+    const int            delete_pngSize = 3508;
+
+    extern const char*   display_png;
+    const int            display_pngSize = 5154;
+
+    extern const char*   divider_png;
+    const int            divider_pngSize = 3877;
+
+    extern const char*   Fader_png;
+    const int            Fader_pngSize = 19460;
+
+    extern const char*   fastbackwardsolid_png;
+    const int            fastbackwardsolid_pngSize = 793;
+
+    extern const char*   fastforwardsolid_png;
+    const int            fastforwardsolid_pngSize = 746;
+
+    extern const char*   forwardsolid_png;
+    const int            forwardsolid_pngSize = 707;
+
+    extern const char*   hp_png;
+    const int            hp_pngSize = 2941;
+
+    extern const char*   icons_psd;
+    const int            icons_psdSize = 156531;
+
+    extern const char*   inverter_png;
+    const int            inverter_pngSize = 3679;
+
+    extern const char*   knob_png;
+    const int            knob_pngSize = 5718;
+
+    extern const char*   Knob_64_png;
+    const int            Knob_64_pngSize = 495933;
+
+    extern const char*   led_off_png;
+    const int            led_off_pngSize = 5214;
+
+    extern const char*   led_on_png;
+    const int            led_on_pngSize = 11713;
+
+    extern const char*   lock_png;
+    const int            lock_pngSize = 21188;
+
+    extern const char*   logic_and_png;
+    const int            logic_and_pngSize = 21437;
+
+    extern const char*   logic_not_png;
+    const int            logic_not_pngSize = 21383;
+
+    extern const char*   logic_or_png;
+    const int            logic_or_pngSize = 21344;
+
+    extern const char*   lp_png;
+    const int            lp_pngSize = 2979;
+
+    extern const char*   micro_png;
+    const int            micro_pngSize = 4670;
+
+    extern const char*   midiin_png;
+    const int            midiin_pngSize = 4633;
+
+    extern const char*   midiout_png;
+    const int            midiout_pngSize = 4672;
+
+    extern const char*   mixer_png;
+    const int            mixer_pngSize = 21499;
+
+    extern const char*   mixer_128px_png;
+    const int            mixer_128px_pngSize = 17238;
+
+    extern const char*   module_png;
+    const int            module_pngSize = 3828;
+
+    extern const char*   multiplier_png;
+    const int            multiplier_pngSize = 4010;
+
+    extern const char*   new_png;
+    const int            new_pngSize = 3710;
+
+    extern const char*   note_png;
+    const int            note_pngSize = 2993;
+
+    extern const char*   open_png;
+    const int            open_pngSize = 3879;
+
+    extern const char*   p2f_png;
+    const int            p2f_pngSize = 3817;
+
+    extern const char*   pausesolid_png;
+    const int            pausesolid_pngSize = 557;
+
+    extern const char*   playsolid_png;
+    const int            playsolid_pngSize = 673;
+
+    extern const char*   plugin_png;
+    const int            plugin_pngSize = 20569;
+
+    extern const char*   pulse_png;
+    const int            pulse_pngSize = 1982;
+
+    extern const char*   random_png;
+    const int            random_pngSize = 1916;
+
+    extern const char*   record_png;
+    const int            record_pngSize = 4144;
+
+    extern const char*   record_active_png;
+    const int            record_active_pngSize = 4144;
+
+    extern const char*   redo_png;
+    const int            redo_pngSize = 3944;
+
+    extern const char*   round_button_jpg;
+    const int            round_button_jpgSize = 12138;
+
+    extern const char*   round_button_png;
+    const int            round_button_pngSize = 18453;
+
+    extern const char*   round_button_pushed_png;
+    const int            round_button_pushed_pngSize = 18877;
+
+    extern const char*   sampler_png;
+    const int            sampler_pngSize = 5753;
+
+    extern const char*   save_png;
+    const int            save_pngSize = 3933;
+
+    extern const char*   saw_png;
+    const int            saw_pngSize = 2463;
+
+    extern const char*   sawtooth_png;
+    const int            sawtooth_pngSize = 5130;
+
+    extern const char*   scope_png;
+    const int            scope_pngSize = 5391;
+
+    extern const char*   sequence_png;
+    const int            sequence_pngSize = 3792;
+
+    extern const char*   settings_png;
+    const int            settings_pngSize = 4632;
+
+    extern const char*   sine_png;
+    const int            sine_pngSize = 2512;
+
+    extern const char*   snapshot_png;
+    const int            snapshot_pngSize = 1093;
+
+    extern const char*   speaker_png;
+    const int            speaker_pngSize = 4111;
+
+    extern const char*   stereodelay_png;
+    const int            stereodelay_pngSize = 4796;
+
+    extern const char*   stop_png;
+    const int            stop_pngSize = 3578;
+
+    extern const char*   tri_png;
+    const int            tri_pngSize = 2335;
+
+    extern const char*   undo_png;
+    const int            undo_pngSize = 4015;
+
+    extern const char*   unlock_png;
+    const int            unlock_pngSize = 21208;
+
+    extern const char*   whitenoise_png;
+    const int            whitenoise_pngSize = 7446;
+
+    extern const char*   COPYING;
+    const int            COPYINGSize = 246;
+
+    extern const char*   COPYING2;
+    const int            COPYING2Size = 1774;
+
+    // Number of elements in the namedResourceList and originalFileNames arrays.
+    const int namedResourceListSize = 68;
+
+    // Points to the start of a list of resource names.
+    extern const char* namedResourceList[];
+
+    // Points to the start of a list of resource filenames.
+    extern const char* originalFilenames[];
+
+    // If you provide the name of one of the binary resource variables above, this function will
+    // return the corresponding data and its size (or a null pointer if the name isn't found).
+    const char* getNamedResource (const char* resourceNameUTF8, int& dataSizeInBytes);
+
+    // If you provide the name of one of the binary resource variables above, this function will
+    // return the corresponding original, non-mangled filename (or a null pointer if the name isn't found).
+    const char* getNamedResourceOriginalFilename (const char* resourceNameUTF8);
+}
