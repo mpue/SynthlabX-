@@ -1229,18 +1229,20 @@ void SynthEditor::openEditor(Module* m) {
 
 	}
 
-	SynthEditor* editor = new SynthEditor(_sampleRate, bufferSize);
 	Viewport* editorView = new Viewport();
+	SynthEditor* editor = new SynthEditor(_sampleRate, bufferSize);
+	
 	editorView->setSize(500, 200);
 	editorView->setViewedComponent(editor);
 	editorView->setScrollBarsShown(true, true);
 	editorView->setScrollOnDragEnabled(false);
 	editorView->setWantsKeyboardFocus(false);
 	editorView->setMouseClickGrabsKeyboardFocus(false);
+
 	editor->setModule(m, false);
 	editor->setIndex(static_cast<int>(m->getIndex()));
-	editor->setTab(tab);
-	editor->addEditorListener(Project::getInstance()->getPropertyView());
+	editor->setTab(tab);	
+
 	tab->addTab(m->getName(), Colours::darkgrey, editorView, false);
 	openViews.push_back(editorView);
 	tab->setCurrentTabIndex(tab->getNumTabs() - 1);

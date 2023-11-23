@@ -17,7 +17,7 @@
 #include "Region.h"
 #include "rubberband/RubberBandStretcher.h"
 using namespace juce;
-//==============================================================================
+//======================-========================================================
 /*
 */
 class AudioRegion : public Region

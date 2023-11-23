@@ -22,9 +22,10 @@
 using namespace std;
 
 //==============================================================================
-TrackNavigator::TrackNavigator(AudioDeviceManager* deviceManager, Viewport* view, PropertyView* propertyView)
+TrackNavigator::TrackNavigator(AudioDeviceManager* deviceManager, Viewport* view, PropertyView* propertyView, double sampleRate)
 {
 	this->propertyView = propertyView;
+	this->sampleRate = sampleRate;
 	this->timeLine = new TimeLine(Project::getInstance()->getTrackLength());
 	this->timeLine->setBounds(0, 0, getWidth(), timelineOffset);
 	this->timeLine->setSize(getWidth(), timelineOffset);
@@ -286,17 +287,17 @@ void TrackNavigator::setRecording(bool recording) {
 	if (recording) {
 		startTimer(50);
 		Session::getInstance()->setRecordingStartTime();
-		recordStart = (long)marker->getPosition() * Project::getInstance()->getSampleRate();
+		recordStart = (long)marker->getPosition() * sampleRate;
 		for (int i = 0; i < tracks.size(); i++) {
 			if (tracks.at(i)->isRecording()) {
 				
 				if (tracks.at(i)->getType() == Track::Type::MIDI) {
-					tracks.at(i)->addMidiRegion(Project::getInstance()->getSampleRate(), recordStart, 0);
+					tracks.at(i)->addMidiRegion(sampleRate, recordStart, 0);
 				}
 				else if (tracks.at(i)->getType() == Track::Type::AUDIO) {
 					AudioRegion* r = dynamic_cast<AudioRegion*>(tracks.at(i)->getCurrentRegion(recordStart));
 					if (r == nullptr) {
-						tracks.at(i)->addRegion(nullptr, Project::getInstance()->getSampleRate(), recordStart, 480000);
+						tracks.at(i)->addRegion(nullptr, sampleRate, recordStart, 480000);
 					}
 					tracks.at(i)->getCurrentRegion(recordStart)->startRecording();
 				}
@@ -307,7 +308,7 @@ void TrackNavigator::setRecording(bool recording) {
 	else {
 		stopTimer();
 		Session::getInstance()->setRecordingStopTime();
-		recordStop = marker->getPosition() * Project::getInstance()->getSampleRate();
+		recordStop = marker->getPosition() * sampleRate;
 		for (int i = 0; i < tracks.size(); i++) {
 			if (tracks.at(i)->isRecording()) {
 				// tracks.at(i)->addRegion(tracks.at(i)->getRecordingBuffer(),Project::getInstance()->getSampleRate(), recordStart, recordStop - recordStart);
@@ -354,7 +355,7 @@ Track* TrackNavigator::addTrack(TrackConfig* tc) {
 		type = Track::Type::MIDI;
 	}
 
-	Track* track = new Track(type, Project::getInstance()->getSampleRate(), this->dragger);
+	Track* track = new Track(type, sampleRate, this->dragger);
 
 	track->setName(tc->getName());
 	track->setMidiOutputDevice(tc->getMidiInputDevice());

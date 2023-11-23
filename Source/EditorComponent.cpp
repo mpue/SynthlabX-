@@ -146,7 +146,7 @@ void EditorComponent::OpenTrackView()
 {
     if (navigator == nullptr) {        
         trackView = new Viewport();
-        navigator = new TrackNavigator(AudioManager::getInstance()->getDeviceManager(), trackView, propertyView);
+        navigator = new TrackNavigator(AudioManager::getInstance()->getDeviceManager(), trackView, propertyView, editor->getSampleRate());
         
         PrefabFactory::getInstance()->init(navigator);
         addMouseListener(navigator, true);

@@ -64,7 +64,7 @@ private:
     int currentSample = 0;
     
     // default settings just in case
-    float sampleRate = 44100;
+    float sampleRate = 48000;
     float buffersize = 512;
       
     

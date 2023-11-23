@@ -135,7 +135,7 @@ private:
     volatile bool running = false;
     
     // default settings just in case
-    double sampleRate = 44100;
+    double sampleRate = 48000;
     int buffersize = 512;
     
     bool keyStates[128] = { false };

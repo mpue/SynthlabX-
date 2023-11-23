@@ -285,9 +285,6 @@ void MainComponent::createStudioLayout() {
 #endif
 	editor->addEditorListener(propertyView);
 	propertyView->getBrowser()->addChangeListener(editor);
-
-	Project::getInstance()->setPropertyView(propertyView);
-
 	addAndMakeVisible(propertyView);
 	addAndMakeVisible(resizerBar);
 	addAndMakeVisible(editorView);

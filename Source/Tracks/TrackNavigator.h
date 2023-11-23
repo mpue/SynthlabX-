@@ -34,7 +34,7 @@ class TrackNavigator : public Component,
 	public ScrollBar::Listener
 {
 public:
-	TrackNavigator(AudioDeviceManager* manager, Viewport* view, PropertyView* propertyView);
+	TrackNavigator(AudioDeviceManager* manager, Viewport* view, PropertyView* propertyView, double sampleRate);
 	~TrackNavigator();
 
 	void paint(Graphics&) override;
@@ -118,9 +118,10 @@ private:
 	long recordStop = 0;
 
 	int timelineOffset = 25;
-
 	double scrollbarOffset = 0;
 	
+	double sampleRate = 0;
+
 	MidiMessage message;
 	PropertyView* propertyView;
 

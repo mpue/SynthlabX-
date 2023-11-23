@@ -220,7 +220,7 @@ void AudioRegion::setDragger(MultiComponentDragger *dragger) {
 }
 
 void AudioRegion::startRecording() {
-    getThumbnail()->reset(2, Project::getInstance()->getSampleRate());
+    getThumbnail()->reset(2, sampleRate);
     startTimer(100);
 }
 

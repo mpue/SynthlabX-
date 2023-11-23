@@ -58,7 +58,7 @@ bool AddModuleAction::perform() {
     Module* m = module;
     
     if (m == nullptr) {
-        m = PrefabFactory::getInstance()->getPrefab(moduleId, Project::getInstance()->getSampleRate(), Project::getInstance()->getBufferSize());
+        m = PrefabFactory::getInstance()->getPrefab(moduleId, editor->getSampleRate(), editor->getBufferSize());
     }
     
     AudioManager* audioManager = AudioManager::getInstance();

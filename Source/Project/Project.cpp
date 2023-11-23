@@ -20,6 +20,7 @@ using juce::OutputStream;
 
 
 Project *Project::instance = NULL;
+
 long  Project::DEFAULT_TRACK_LENGTH = 600;
 int   Project::DEFAULT_TRACK_HEIGHT = 75;
 float Project::DEFAULT_TEMPO = 100.0f;
@@ -156,14 +157,6 @@ void Project::setMain(juce::Component* c) {
     main = c;
 }
 
-void Project::setPropertyView(PropertyView* view) {
-    this->propertyView = view;
-}
-
-PropertyView* Project::getPropertyView() {
-    return propertyView;
-}
-
 ApplicationCommandManager* Project::getCommandManager() {
     return commandManager;
 };
@@ -206,4 +199,120 @@ bool Project::isDirty() {
 
 void Project::setDirty(bool dirty) {
     this->dirty = dirty;
+}
+
+void Project::setTracklength(long length) {
+    this->tracklength = length;
+    sendChangeMessage();
+};
+
+long Project::getTrackLength() {
+    return this->tracklength;
+}
+
+void Project::setName(String name) {
+    this->name = name;
+    sendChangeMessage();
+}
+
+String Project::getName() {
+    return name;
+}
+
+void Project::addChangeListener(ChangeListener* listener) {
+    ChangeBroadcaster::addChangeListener(listener);
+}
+
+ProjectConfig* Project::getConfig() {
+    return config;
+}
+
+void Project::createNew(String name) {
+    this->name = name;
+
+    if (config != NULL) {
+        delete config;
+    }
+
+    config = new ProjectConfig();
+    clear();
+}
+
+float Project::getTempo() {
+    return tempo;
+}
+
+void Project::setTempo(float tempo) {
+    this->tempo = tempo;
+}
+
+void Project::saveCurrent(File output) {
+    ValueTree v = config->getConfig();
+
+    std::map<String, String>::iterator it;
+
+    ValueTree audioFiles = ValueTree("AudioFiles");
+
+    for (it = projectAudio.begin(); it != projectAudio.end(); ++it) {
+        ValueTree file = ValueTree("File");
+        file.setProperty("refId", it->first, nullptr);
+        file.setProperty("path", it->second, nullptr);
+        audioFiles.addChild(file, -1, nullptr);
+    }
+
+
+    std::unique_ptr<XmlElement> xml = v.createXml();
+    xml->writeToFile(output, "");
+    xml = nullptr;
+}
+
+void Project::save(File output) {
+
+    setName(output.getFileNameWithoutExtension());
+
+    config->setName(name);
+    config->setBufferSize(bufferSize);
+    config->setSampleRate(sampleRate);
+    config->setTracklength(tracklength);
+    config->setTempo(tempo);
+
+    ValueTree v = config->getConfig();
+
+    std::map<String, String>::iterator it;
+
+    ValueTree audioFiles = ValueTree("AudioFiles");
+
+    for (it = projectAudio.begin(); it != projectAudio.end(); ++it) {
+        ValueTree file = ValueTree("File");
+        file.setProperty("refId", it->first, nullptr);
+        file.setProperty("path", it->second, nullptr);
+        audioFiles.addChild(file, -1, nullptr);
+    }
+
+    v.addChild(audioFiles, -1, nullptr);
+
+    std::unique_ptr<XmlElement> xml = v.createXml();
+    xml->writeToFile(output, "");
+    xml = nullptr;
+
+}
+
+void Project::load(File file) {
+    std::unique_ptr<XmlElement> xml = XmlDocument(file).getDocumentElement();
+    ValueTree v = ValueTree::fromXml(*xml.get());
+    xml = nullptr;
+    config->setConfig(v);
+    setName(config->getName());
+}
+
+void Project::clear() {
+    projectAudio.clear();
+}
+
+void Project::addAudioFile(String id, String path) {
+    projectAudio.insert(make_pair(id, path));
+}
+
+String Project::getAudioPath(String id) {
+    return projectAudio[id];
 }

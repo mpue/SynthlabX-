@@ -35,7 +35,7 @@ class SynthEditor  : public Component,
 {
 public:
 
-    SynthEditor (double sampleRate, int buffersize );
+    SynthEditor (double sampleRate, int buffersize);
     SynthEditor ();
     ~SynthEditor();
 

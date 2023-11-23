@@ -43,7 +43,8 @@ public:
     inline Region* pasteRegion(long position) {
         
         if (AudioRegion* region = dynamic_cast<AudioRegion*>(regionsClipboard.back())) {
-            AudioRegion* copy = new AudioRegion(region,*manager,Project::getInstance()->getSampleRate());
+            // TODO : Pass sampleRate accordingly
+            AudioRegion* copy = new AudioRegion(region,*manager,48000);
             copy->setSampleOffset(position, false, false);
             return copy;
         }

@@ -101,8 +101,6 @@ void SynthlabXAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlo
 	// initialisation that you need..	
 	audioProcessor = new SynthlabAudioProcessor(sampleRate, samplesPerBlock);
 	audioProcessor->prepareToPlay(sampleRate, samplesPerBlock);
-	Project::getInstance()->setSampleRate(sampleRate);
-	Project::getInstance()->setBufferSize(samplesPerBlock);
 }
 
 void SynthlabXAudioProcessor::releaseResources()
