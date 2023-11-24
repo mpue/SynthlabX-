@@ -891,7 +891,7 @@ bool ModuleUtils::connectModules(Module* source, Module* target, int pin) {
             return false;
             break;
     }
-    return false;
+
 }
 
 bool ModuleUtils::connectModuleValues(Module* source, Module* target, int inputPin)

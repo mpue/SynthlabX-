@@ -95,16 +95,11 @@ AudioRecorderPanel::AudioRecorderPanel (float sampleRate, int bufferSize)
     timeLabel2->setColour (TextEditor::textColourId, Colours::black);
     timeLabel2->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-
     //[UserPreSize]
+    setSize (1000, 400);
     //[/UserPreSize]
 
-    setSize (1000, 400);
-
-
     //[Constructor] You can add your own custom stuff here..
-    vuSliderLeft->setLookAndFeel(Project::getInstance()->getLookAndFeel());
-    vuSliderRight->setLookAndFeel(Project::getInstance()->getLookAndFeel());
     gainSlider->setValue(1.0);
     //[/Constructor]
 }
@@ -112,8 +107,6 @@ AudioRecorderPanel::AudioRecorderPanel (float sampleRate, int bufferSize)
 AudioRecorderPanel::~AudioRecorderPanel()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
-    vuSliderRight->setLookAndFeel(nullptr);
-    vuSliderLeft->setLookAndFeel(nullptr);
     //[/Destructor_pre]
 
     component = nullptr;

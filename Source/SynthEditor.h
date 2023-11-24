@@ -35,7 +35,7 @@ class SynthEditor  : public Component,
 {
 public:
 
-    SynthEditor (double sampleRate, int buffersize);
+    SynthEditor (double sampleRate, int buffersize, juce::UndoManager* undoManager, MainTabbedComponent* mainTab, ApplicationCommandManager* commandManager);
     SynthEditor ();
     ~SynthEditor();
 
@@ -267,6 +267,10 @@ private:
     std::vector<EditorListener*> listener;
     
     TrackNavigator* navigator = nullptr;
+    juce::UndoManager* undoManager;
+    MainTabbedComponent* mainTab;
+
+    ApplicationCommandManager* commandManager;
 
     //[/UserVariables]
 

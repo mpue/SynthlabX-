@@ -40,39 +40,15 @@ public:
         return instance;
     }
     
-    enum AppMode {
-        STUDIO,
-        PLAYER
-    };
-
     void destroy();
     
-    juce::UndoManager* getUndoManager();
     juce::StringArray& getRecentFiles();
     void loadRecentFileList();
     void addRecentFile(juce::String path);
-    
-    void setSupplemental(MainTabbedComponent* component) ;
-    MainTabbedComponent* getSupplemental();
-    
-    CustomLookAndFeel* getLookAndFeel();
-    
-    std::vector<juce::DialogWindow*>& getOpenWindows();
-    
-    void setDefaultSampler(Sampler* sampler);
-    Sampler* getDefaultSampler();
-    
+      
     void setRoot(Module* root);
     Module* getRoot();
-    
-    juce::Component* getMain();
-    void setMain(juce::Component* c);
-        
-    ApplicationCommandManager* getCommandManager();
-    void setCommandManager(ApplicationCommandManager* commandManager);
-    
-    AppMode getAppMode();
-    
+                
     String getCurrentFilePath();
     void setCurrentFilePath(String path);
     
@@ -102,9 +78,7 @@ public:
     double snap(double location, double raster);
     
 protected:
-    Project() {
-        undoManager = new juce::UndoManager();
-        lookAndFeel = new CustomLookAndFeel();
+    Project() {        
         this->tracklength = DEFAULT_TRACK_LENGTH;
         name = "empty Project";
         this->config = new ProjectConfig();
@@ -123,33 +97,21 @@ protected:
             }
             it = openWindows.erase(it);
         }
-        
-        // check if supplemental tab is still open (tab at the bottom side)
-        
-        if (supplementalTab != nullptr) {
-            supplementalTab->clearTabs();
-            delete supplementalTab;
-        }
-        
-        // finally delete the according resources
-        
-        delete undoManager;
-        delete lookAndFeel;
+                    
+        // finally delete the according resources       
         delete config;
     }
     
     ApplicationCommandManager* commandManager;
     
     static Project* instance;
-    juce::UndoManager* undoManager;
+    
     juce::StringArray recentFiles;
-    CustomLookAndFeel* lookAndFeel;
-    MainTabbedComponent* supplementalTab = nullptr;
+    CustomLookAndFeel* lookAndFeel;    
     std::vector<juce::DialogWindow*> openWindows;
     juce::Component* main = nullptr;
     Sampler* defaultSampler = nullptr;
     Module* root = nullptr;
-    AppMode mode = STUDIO;
     
     String currentFilePath;
     String currentFileName;

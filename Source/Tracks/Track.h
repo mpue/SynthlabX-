@@ -12,7 +12,7 @@
 #define TRACK_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "AudioRegion.h"0
+#include "AudioRegion.h"
 #include "MidiRegion.h"
 #include "Region.h"
 #include <vector>

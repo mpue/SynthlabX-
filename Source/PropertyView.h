@@ -42,7 +42,7 @@ class PropertyView  : public juce::Component,
 {
 public:
     //==============================================================================
-    PropertyView ();
+    PropertyView (Sampler* sampler);
     ~PropertyView();
 
     //==============================================================================

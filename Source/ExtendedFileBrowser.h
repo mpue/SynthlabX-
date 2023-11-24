@@ -60,7 +60,7 @@ class ExtendedFileBrowser : public juce::Component,
     
     
 public:
-    ExtendedFileBrowser(const juce::File& initialFileOrDirectory,const juce::WildcardFileFilter* fileFilter, FileBrowserModel* model);
+    ExtendedFileBrowser(const juce::File& initialFileOrDirectory,const juce::WildcardFileFilter* fileFilter, FileBrowserModel* model, Sampler* sampler);
     ~ExtendedFileBrowser();
     
     void mouseDrag (const juce::MouseEvent& event) override;
@@ -94,8 +94,8 @@ private:
     File* selectedFile;
     juce::TableListBox* table = nullptr;
     juce::Viewport* view = nullptr;
-    Sampler* sampler;
     bool playing = false;
     std::vector<Button*> driveButtons;
+    Sampler* sampler;
 };
 

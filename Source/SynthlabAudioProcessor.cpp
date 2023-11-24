@@ -25,8 +25,6 @@ SynthlabAudioProcessor::SynthlabAudioProcessor(float sampleRate, int bufferSize)
     this->sampleRate = sampleRate;
     this->buffersize = bufferSize;
     // a global sampler object which allows us to play audio at any place like for preview for example
-    defaultSampler = new Sampler(sampleRate, buffersize);
-    Project::getInstance()->setDefaultSampler(defaultSampler);
     mixer = Mixer::getInstance();
 }
 

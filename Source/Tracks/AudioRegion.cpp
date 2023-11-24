@@ -55,7 +55,9 @@ AudioRegion::AudioRegion(AudioRegion* other, AudioFormatManager& manager, double
 
 AudioRegion::AudioRegion(AudioSampleBuffer* source, AudioFormatManager& manager, long startSample, long sampleLength, double sampleRate) {
 
-    this->zoom = Project::getInstance()->getTempo() / 8;
+    // TODO : Set tempo on change accordingly
+
+    this->zoom = 120.0f / 8;
     this->constrainer = new ResizeConstrainer(this->zoom / 4);
     
     resizerR = new ResizableEdgeComponent(this,constrainer,ResizableEdgeComponent::rightEdge);
@@ -145,7 +147,10 @@ AudioRegion::AudioRegion(AudioRegion* other, AudioFormatManager& manager, double
 //==============================================================================
 AudioRegion::AudioRegion(File file, String refId, AudioFormatManager& manager, double sampleRate)
 {
-    this->zoom = Project::getInstance()->getTempo() / 4;
+    // TODO : Set tempo on change accordingly
+
+    this->zoom = 120.0f / 8;
+
     this->constrainer = new ResizeConstrainer(this->zoom / 4);
 
     resizerR = new ResizableEdgeComponent(this,constrainer,ResizableEdgeComponent::rightEdge);

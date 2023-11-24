@@ -78,32 +78,24 @@ MainComponent::MainComponent() : resizerBar(&stretchableManager, 1, true)
 	createConfig();
 
 	AudioManager::getInstance()->setDeviceManager(&deviceManager);
-	Project::getInstance()->setCommandManager(this);
+	
 
-	if (Project::getInstance()->getAppMode() == Project::AppMode::STUDIO) {
+	undoManager = new juce::UndoManager();
+
 
 #if defined(JUCE_PLUGINHOST_AU) || defined(JUCE_PLUGINHOST_VST)
 #endif
 
-		createToolbar();
-		createCPUMeter();
-		createMenu();
-		createKeyMap();
-		createStudioLayout();
+	// a global sampler object which allows us to play audio at any place like for preview for example
+	defaultSampler = new Sampler(sampleRate, buffersize);
 
-		// a global sampler object which allows us to play audio at any place like for preview for example
-		defaultSampler = new Sampler(sampleRate, buffersize);
-		Project::getInstance()->setDefaultSampler(defaultSampler);
-	}
-	else if (Project::getInstance()->getAppMode() == Project::AppMode::PLAYER) {
-		createPlayerLayout();
-	}
-
-	Project::getInstance()->setMain(this);
-	
+	createToolbar();
+	createCPUMeter();
+	createMenu();
+	createKeyMap();
+	createStudioLayout();
 	startTimer(20);
 	enableAllMidiInputs();
-
 	addMouseListener(this, true);
 	editor->addKeyListener(getKeyMappings());
 	addKeyListener(getKeyMappings());
@@ -123,13 +115,9 @@ MainComponent::~MainComponent()
 
 	shutdownAudio();
 
-	if (Project::getInstance()->getAppMode() == Project::AppMode::STUDIO) {
-		loadSlider->setLookAndFeel(nullptr);
-
 #if JUCE_MAC
 		MenuBarModel::setMacMainMenu(nullptr);
 #endif
-	}
 
 	editor->removeAllChangeListeners();
 
@@ -142,36 +130,25 @@ MainComponent::~MainComponent()
 		delete moduleBrowser;
 	}
 
-	if (Project::getInstance()->getAppMode() == Project::AppMode::STUDIO) {
-		delete tab;
-		delete view;
-		delete propertyView;
-		delete lockButton;
-		delete menu;
-		delete toolbar;
-		delete toolbarFactory;
-		delete editorView;
+	delete tab;
+	delete view;
+	delete propertyView;
+	delete lockButton;
+	delete menu;
+	delete toolbar;
+	delete toolbarFactory;
+	delete editorView;
 #if defined(JUCE_PLUGINHOST_AU)
 		delete pluginMenu;
 #endif
-		delete cpuLoadLabel;
-		delete loadSlider;
-
-	}
-	else if (Project::getInstance()->getAppMode() == Project::AppMode::PLAYER) {
-		delete editor;
-		delete tab;
-		delete propertyView;
-		delete toolbarFactory;
-		delete editorView;
-		delete mixerPanel;
-		delete lockButton;
-	}
+	delete cpuLoadLabel;
+	delete loadSlider;
 
 	if (defaultSampler != nullptr) {
 		delete defaultSampler;
 	}
 
+	delete undoManager;
 
 	PrefabFactory::getInstance()->destroy();
 	Project::getInstance()->destroy();
@@ -266,14 +243,13 @@ void MainComponent::createCPUMeter() {
 	loadSlider->setColour(Slider::trackColourId, Colour(0xff434242));
 	loadSlider->setColour(Slider::rotarySliderOutlineColourId, Colour(0x66ffffff));
 	loadSlider->setColour(Slider::textBoxBackgroundColourId, Colour(0x00ffffff));
-	loadSlider->setLookAndFeel(Project::getInstance()->getLookAndFeel());
 
 	addAndMakeVisible(loadSlider);
 }
 
 void MainComponent::createStudioLayout() {
-	propertyView = new PropertyView();
-	editorView = new EditorComponent(sampleRate, buffersize, propertyView);
+	propertyView = new PropertyView(defaultSampler);
+	editorView = new EditorComponent(sampleRate, buffersize, propertyView, undoManager,this);
 	editor = editorView->getEditor();
 	mixer = editorView->getMixer();
 	mixerPanel = editorView->getMixerPanel();
@@ -311,18 +287,9 @@ void MainComponent::createStudioLayout() {
 #if defined(JUCE_PLUGINHOST_AU) || defined(JUCE_PLUGINHOST_VST)
 #endif
 	editor->updateProject(File());
-	
+
 }
 
-void MainComponent::createPlayerLayout() {
-	editor = new SynthEditor(sampleRate, buffersize);
-	mixerPanel = new MixerPanel();
-	mixer = Mixer::getInstance();
-	mixerPanel->setMixer(mixer);
-	editor->setMixer(mixerPanel);
-	addAndMakeVisible(editor);
-	addChildComponent(mixerPanel);
-}
 
 void MainComponent::timerCallback() {
 
@@ -333,28 +300,25 @@ void MainComponent::timerCallback() {
 		}
 	}
 
-	if (Project::getInstance()->getAppMode() == Project::AppMode::STUDIO) {
+	currentMeasure = (currentMeasure + 1) % 10;
 
-		currentMeasure = (currentMeasure + 1) % 10;
+	loads[currentMeasure] = cpuLoad;
 
-		loads[currentMeasure] = cpuLoad;
-
-		if (currentMeasure == 0) {
-			for (int i = 0; i < 10; i++) {
-				cpuLoad += loads[i];
-			}
-			cpuLoad /= 10;
-
-			if (cpuLoad < 0) {
-				cpuLoad = 0;
-			}
-			if (cpuLoad == NAN) {
-				cpuLoad = 0;
-			}
-
-			loadSlider->setValue(cpuLoad);
-			cpuLoadLabel->setText(String(cpuLoad) + "%", juce::NotificationType::dontSendNotification);
+	if (currentMeasure == 0) {
+		for (int i = 0; i < 10; i++) {
+			cpuLoad += loads[i];
 		}
+		cpuLoad /= 10;
+
+		if (cpuLoad < 0) {
+			cpuLoad = 0;
+		}
+		if (cpuLoad == NAN) {
+			cpuLoad = 0;
+		}
+
+		loadSlider->setValue(cpuLoad);
+		cpuLoadLabel->setText(String(cpuLoad) + "%", juce::NotificationType::dontSendNotification);
 	}
 
 }
@@ -466,7 +430,7 @@ void MainComponent::getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill
 		processModule(editor->getModule());
 
 	std::vector<AudioOut*> outputChannels = mixer->getOutputChannels();
-	std::vector<AudioIn*> inputChannels = mixer ->getInputChannels();
+	std::vector<AudioIn*> inputChannels = mixer->getInputChannels();
 	std::vector<AuxOut*> auxChannels = mixer->getAuxChannels();
 
 	for (int k = 0; k < mixer->getNumInputs(); k++) {
@@ -620,43 +584,34 @@ void MainComponent::paint(Graphics& g)
 
 void MainComponent::resized()
 {
+	auto r = getLocalBounds().reduced(4).removeFromBottom(getHeight() - 55);
 
-	if (Project::getInstance()->getAppMode() == Project::AppMode::STUDIO) {
-		auto r = getLocalBounds().reduced(4).removeFromBottom(getHeight() - 55);
+	if (toolbar != nullptr)
+		toolbar->setSize(getLocalBounds().getWidth(), 50);
 
-		if (toolbar != nullptr)
-			toolbar->setSize(getLocalBounds().getWidth(), 50);
+	// make a list of two of our child components that we want to reposition
+	Component* comps[] = { propertyView, &resizerBar, editorView };
 
-		// make a list of two of our child components that we want to reposition
-		Component* comps[] = { propertyView, &resizerBar, editorView };
+	// this will position the 3 components, one above the other, to fit
+	// vertically into the rectangle provided.
+	stretchableManager.layOutComponents(comps, 3,
+		r.getX(), r.getY() + 25, r.getWidth(), r.getHeight(),
+		false, true);
 
-		// this will position the 3 components, one above the other, to fit
-		// vertically into the rectangle provided.
-		stretchableManager.layOutComponents(comps, 3,
-			r.getX(), r.getY() + 25, r.getWidth(), r.getHeight(),
-			false, true);
-
-		if (propertyView != nullptr && propertyView->getParentComponent() != NULL)
-			propertyView->setSize(r.getWidth() - editorView->getWidth(), propertyView->getHeight());
-		if (getParentComponent() != nullptr) {
-			if (cpuLoadLabel != NULL) {
-				cpuLoadLabel->setBounds(getParentComponent()->getWidth() - 50, 0, 50, 20);
-				loadSlider->setBounds(getParentComponent()->getWidth() - 150, 10, 100, 10);
-			}
-			if (editorView != NULL) {
-				editorView->getEditor()->resized();
-			}
-			if (menu != NULL) {
-				menu->setBounds(0, 0, getParentWidth(), 25);
-			}
-
+	if (propertyView != nullptr && propertyView->getParentComponent() != NULL)
+		propertyView->setSize(r.getWidth() - editorView->getWidth(), propertyView->getHeight());
+	if (getParentComponent() != nullptr) {
+		if (cpuLoadLabel != NULL) {
+			cpuLoadLabel->setBounds(getParentComponent()->getWidth() - 50, 0, 50, 20);
+			loadSlider->setBounds(getParentComponent()->getWidth() - 150, 10, 100, 10);
 		}
-	}
-	else {
-		if (getParentComponent() != nullptr && editorView != nullptr) {
-			editorView->setSize(getParentWidth(), getParentHeight());
+		if (editorView != NULL) {
 			editorView->getEditor()->resized();
 		}
+		if (menu != NULL) {
+			menu->setBounds(0, 0, getParentWidth(), 25);
+		}
+
 	}
 
 
@@ -799,56 +754,6 @@ StringArray MainComponent::getMenuBarNames() {
 }
 
 void MainComponent::openSettings() {
-
-	AudioDeviceSelectorComponent* selector = new AudioDeviceSelectorComponent(deviceManager, 2, 16, 2, 16, true, true, true, false);
-	DialogWindow::LaunchOptions launchOptions;
-
-	selector->setLookAndFeel(Project::getInstance()->getLookAndFeel());
-	launchOptions.dialogTitle = ("Audio Settings");
-	launchOptions.escapeKeyTriggersCloseButton = true;
-	launchOptions.resizable = false;
-	launchOptions.useNativeTitleBar = false;
-	launchOptions.useBottomRightCornerResizer = true;
-	launchOptions.componentToCentreAround = getParentComponent();
-	launchOptions.content.setOwned(selector);
-	launchOptions.content->setSize(600, 580);
-	launchOptions.dialogBackgroundColour = Colour(0xff222222);
-
-	DialogWindow* window = launchOptions.launchAsync();
-
-	std::function<void(int)> lambda =
-		[=](int result) {
-		AudioDeviceManager::AudioDeviceSetup setup;
-
-		deviceManager.getAudioDeviceSetup(setup);
-		deviceManager.restartLastAudioDevice();
-		AudioManager::getInstance()->setupChannels();
-		refreshMidiInputs();
-
-		std::unique_ptr<XmlElement> config = deviceManager.createStateXml();
-
-		String userHome = File::getSpecialLocation(File::userHomeDirectory).getFullPathName();
-
-		File appDir = File(userHome + "/.Synthlab");
-
-		if (!appDir.exists()) {
-			appDir.createDirectory();
-		}
-
-		File configFile = File(userHome + "/.Synthlab/config.xml");
-
-		if (config != NULL) {
-			config->writeToFile(configFile, "");
-			config = nullptr;
-		}
-	};
-
-
-	ModalComponentManager::Callback* callback = ModalCallbackFunction::create(lambda);
-	ModalComponentManager::getInstance()->attachCallback(window, callback);
-
-	Project::getInstance()->getOpenWindows().push_back(window);
-
 }
 
 bool MainComponent::keyStateChanged(bool isKeyDown, juce::Component* originatingComponent) {
@@ -926,8 +831,8 @@ void MainComponent::buttonClicked(Button* b)
 
 		if (tb->getItemId() == toolbarFactory->delete_element) {
 			RemoveSelectedAction* rma = new RemoveSelectedAction(editor);
-			Project::getInstance()->getUndoManager()->beginNewTransaction();
-			Project::getInstance()->getUndoManager()->perform(rma);
+			undoManager->beginNewTransaction();
+			undoManager->perform(rma);
 		}
 		else if (tb->getItemId() == toolbarFactory->doc_new) {
 			Project::getInstance()->setNewFile(true);
@@ -937,7 +842,7 @@ void MainComponent::buttonClicked(Button* b)
 			editor->setRunning(true);
 		}
 		else if (tb->getItemId() == toolbarFactory->doc_save) {
-			editor->saveFile();						
+			editor->saveFile();
 		}
 		else if (tb->getItemId() == toolbarFactory->doc_open) {
 			editor->setRunning(false);
@@ -948,10 +853,10 @@ void MainComponent::buttonClicked(Button* b)
 			openSettings();
 		}
 		else if (tb->getItemId() == toolbarFactory->app_undo) {
-			Project::getInstance()->getUndoManager()->undo();
+			undoManager->undo();
 		}
 		else if (tb->getItemId() == toolbarFactory->app_redo) {
-			Project::getInstance()->getUndoManager()->redo();
+			undoManager->redo();
 		}
 		else if (tb->getItemId() == toolbarFactory->mod_sources) {
 
@@ -1269,7 +1174,7 @@ void MainComponent::disableAllMidiInputs() {
 
 void MainComponent::changeListenerCallback(juce::ChangeBroadcaster* source) {
 
-	TrackNavigator* navigator  = dynamic_cast<TrackNavigator*>(source);
+	TrackNavigator* navigator = dynamic_cast<TrackNavigator*>(source);
 	if (navigator != nullptr) {
 		currentSample = navigator->getSamplePosition();
 

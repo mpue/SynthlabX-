@@ -37,7 +37,7 @@ using juce::Colour;
 //[/MiscUserDefs]
 
 //==============================================================================
-PropertyView::PropertyView () : TimeSliceThread("PropertyWatcher")
+PropertyView::PropertyView (Sampler* sampler) : TimeSliceThread("PropertyWatcher")
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -75,7 +75,7 @@ PropertyView::PropertyView () : TimeSliceThread("PropertyWatcher")
     directoryContents->setIgnoresHiddenFiles(false);
     File initialDir = File::getSpecialLocation(File::SpecialLocationType::userHomeDirectory).getFullPathName()+"/Documents/samples";
     FileBrowserModel* model = new FileBrowserModel(directoryContents, initialDir);
-    browser  = new ExtendedFileBrowser(File::getSpecialLocation(File::userHomeDirectory),filter,model);
+    browser  = new ExtendedFileBrowser(File::getSpecialLocation(File::userHomeDirectory),filter,model, sampler);
     directoryContents->addChangeListener(browser);
     tabbedComponent->addTab("Browser",juce::Colours::grey, browser, false);
     tabbedComponent->addTab("Description",juce::Colours::grey, descriptionEditor, false);

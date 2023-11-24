@@ -120,7 +120,6 @@ private:
     void createMenu();
     void createCPUMeter();
     void createStudioLayout();
-    void createPlayerLayout();
     
     juce::StretchableLayoutManager stretchableManager;
     juce::StretchableLayoutResizerBar resizerBar;
@@ -161,6 +160,8 @@ private:
     
     Sampler* defaultSampler = nullptr;
     TrackNavigator* navigator = nullptr;
+
+    juce::UndoManager* undoManager = nullptr;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

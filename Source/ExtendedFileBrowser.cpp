@@ -26,13 +26,16 @@ using juce::XmlElement;
 using juce::XmlDocument;
 using juce::ScopedPointer;
 
-ExtendedFileBrowser::ExtendedFileBrowser(const File& initialFileOrDirectory,const WildcardFileFilter* fileFilter, FileBrowserModel* model) : initialDir(initialFileOrDirectory) {
+ExtendedFileBrowser::ExtendedFileBrowser(const File& initialFileOrDirectory,const WildcardFileFilter* fileFilter, FileBrowserModel* model, Sampler* sampler) : initialDir(initialFileOrDirectory) {
     
+
     // addMouseListener(this, true);
     table = new TableListBox();
     table->getHeader().addColumn("File", 1, 350);
     table->getHeader().addColumn("Size", 2, 50);
     table->setModel(model);
+
+    this->sampler = sampler;
 
     juce::Array<juce::File> drives;
 
@@ -62,7 +65,6 @@ ExtendedFileBrowser::ExtendedFileBrowser(const File& initialFileOrDirectory,cons
     view->setViewedComponent(table);
     addAndMakeVisible(view);
     
-    sampler = Project::getInstance()->getDefaultSampler();
     table->addMouseListener(this, true);
     
     loadState();
@@ -121,9 +123,9 @@ void ExtendedFileBrowser::mouseDown(const juce::MouseEvent &event) {
                     f->getFileExtension().toLowerCase().contains("mp3") || 
                     f->getFileExtension().toLowerCase().contains("aif") ||
                     f->getFileExtension().toLowerCase().contains("ogg")) {
-                     Project::getInstance()->getDefaultSampler()->stop();
-                    Project::getInstance()->getDefaultSampler()->loadSample(*f);
-                    Project::getInstance()->getDefaultSampler()->play();
+                    sampler->stop();
+                    sampler->loadSample(*f);
+                    sampler->play();
                 }
             }
             
@@ -159,7 +161,7 @@ void ExtendedFileBrowser::mouseDoubleClick(const juce::MouseEvent &event) {
 void ExtendedFileBrowser::buttonClicked(Button* button)
 {
     if (button->getButtonText() == "STOP") {
-        Project::getInstance()->getDefaultSampler()->stop();
+        sampler->stop();
     }
     else {
         juce::File* file = new juce::File(button->getButtonText() + "\\");
@@ -312,7 +314,7 @@ void ExtendedFileBrowser::loadState() {
 void ExtendedFileBrowser::focusLost(FocusChangeType cause)
 {
     Component::focusLost(cause);
-    Project::getInstance()->getDefaultSampler()->stop();
+    sampler->stop();
 }
 
 

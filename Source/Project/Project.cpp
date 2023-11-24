@@ -108,37 +108,8 @@ void Project::destroy() {
     delete instance;
 }
 
-juce::UndoManager* Project::getUndoManager() {
-    return undoManager;
-}
-
 juce::StringArray& Project::getRecentFiles() {
     return recentFiles;
-}
-
-
-void Project::setSupplemental(MainTabbedComponent* component) {
-    this->supplementalTab = component;
-}
-
-MainTabbedComponent* Project::getSupplemental(){
-    return supplementalTab;
-}
-
-CustomLookAndFeel* Project::getLookAndFeel() {
-    return lookAndFeel;
-};
-
-std::vector<juce::DialogWindow*>& Project::getOpenWindows() {
-    return openWindows;
-}
-
-void Project::setDefaultSampler(Sampler* sampler) {
-    this->defaultSampler = sampler;
-}
-
-Sampler* Project::getDefaultSampler() {
-    return this->defaultSampler;
 }
 
 void Project::setRoot(Module* root) {
@@ -147,26 +118,6 @@ void Project::setRoot(Module* root) {
 
 Module* Project::getRoot() {
     return root;
-}
-
-juce::Component* Project::getMain() {
-    return main;
-}
-
-void Project::setMain(juce::Component* c) {
-    main = c;
-}
-
-ApplicationCommandManager* Project::getCommandManager() {
-    return commandManager;
-};
-
-void Project::setCommandManager(ApplicationCommandManager* commandManager) {
-    this->commandManager = commandManager;
-}
-
-Project::AppMode Project::getAppMode() {
-    return mode;
 }
 
 void Project::setNewFile(bool isNew) {

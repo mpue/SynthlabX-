@@ -23,7 +23,7 @@
 class EditorComponent    : public juce::Component, public juce::ChangeListener
 {
 public:
-    EditorComponent(float sampleRate, int bufferSize, PropertyView* properties);
+    EditorComponent(float sampleRate, int bufferSize, PropertyView* properties, juce::UndoManager* undoManager, ApplicationCommandManager* commandManager);
     ~EditorComponent();
 
     void paint (juce::Graphics&) override;

@@ -59,12 +59,15 @@ SynthEditor::SynthEditor() {
 }
 
 
-SynthEditor::SynthEditor(double sampleRate, int buffersize)
+SynthEditor::SynthEditor(double sampleRate, int buffersize, juce::UndoManager* undoManager, MainTabbedComponent* mainTab, ApplicationCommandManager* commandManager)
 {
 	Logger::writeToLog("Creating SynthEditor with sample rate " + String(sampleRate) + " kHz and buffer size of " + String(buffersize) + " bytes.");
 
 	this->bufferSize = buffersize;
 	this->_sampleRate = sampleRate;
+	this->undoManager = undoManager;
+	this->mainTab = mainTab;
+	this->commandManager = commandManager;
 
 	setSize(1280, 800);
 
@@ -85,8 +88,7 @@ SynthEditor::SynthEditor(double sampleRate, int buffersize)
 
 	linePath = Path();
 
-
-	Project::getInstance()->getCommandManager()->registerAllCommandsForTarget(this);	
+	commandManager->registerAllCommandsForTarget(this);	
 }
 
 SynthEditor::~SynthEditor()
@@ -407,8 +409,8 @@ void SynthEditor::mouseUp(const MouseEvent& e)
 
 	if (state == SelectionModel::MOVING_SELECTION) {
 		MoveSelectedAction* msa = new MoveSelectedAction(this);
-		Project::getInstance()->getUndoManager()->beginNewTransaction();
-		Project::getInstance()->getUndoManager()->perform(msa);
+		undoManager->beginNewTransaction();
+		undoManager->perform(msa);
 	}
 
 	else if (state == SelectionModel::State::DRAGGING_CONNECTION) {
@@ -524,7 +526,6 @@ int SynthEditor::snap(int location, int raster) {
 
 void SynthEditor::showContextMenu(Point<int> position) {
 	PopupMenu* m = new PopupMenu();
-	m->setLookAndFeel(Project::getInstance()->getLookAndFeel());
 
 	Module* module = nullptr;
 
@@ -555,7 +556,7 @@ void SynthEditor::showContextMenu(Point<int> position) {
 			else {
 				if ((k = dynamic_cast<Knob*>(module)) != NULL) {
 					m->addItem(3, "MIDI learn");
-					m->addCommandItem(Project::getInstance()->getCommandManager(), SynthEditor::CommandIds::RESET_GUI_POS);
+					m->addCommandItem(commandManager, SynthEditor::CommandIds::RESET_GUI_POS);
 				}
 			}
 
@@ -611,11 +612,11 @@ void SynthEditor::showContextMenu(Point<int> position) {
 
 		m->addItem(1, "Add module");
 		// m->addCommandItem(Project::getInstance()->getCommandManager(), CommandIds::ADD_MODULE);
-		m->addCommandItem(Project::getInstance()->getCommandManager(), CommandIds::DELETE_SELECTED);
+		m->addCommandItem(commandManager, CommandIds::DELETE_SELECTED);
 		// m->addCommandItem(Project::getInstance()->getCommandManager(), CommandIds::LOAD_MODULE);
 		m->addItem(3, "Load module");
-		m->addCommandItem(Project::getInstance()->getCommandManager(), CommandIds::SAVE_MODULE);
-		m->addCommandItem(Project::getInstance()->getCommandManager(), CommandIds::SAVE_SCREENSHOT);
+		m->addCommandItem(commandManager, CommandIds::SAVE_MODULE);
+		m->addCommandItem(commandManager, CommandIds::SAVE_SCREENSHOT);
 
 		if (locked) {
 			m->addItem(99, "Unlock");
@@ -633,8 +634,8 @@ void SynthEditor::showContextMenu(Point<int> position) {
 
 		PopupMenu alignMenu = PopupMenu();
 
-		alignMenu.addCommandItem(Project::getInstance()->getCommandManager(), CommandIds::ALIGN_X);
-		alignMenu.addCommandItem(Project::getInstance()->getCommandManager(), CommandIds::ALIGN_Y);
+		alignMenu.addCommandItem(commandManager, CommandIds::ALIGN_X);
+		alignMenu.addCommandItem(commandManager, CommandIds::ALIGN_Y);
 
 		m->addSubMenu("Align", alignMenu);
 
@@ -693,8 +694,8 @@ void SynthEditor::showContextMenu(Point<int> position) {
 			m->setIndex(PrefabFactory::getInstance()->getNextModuleIndex());
 			AddModuleAction* am = new AddModuleAction(this, position, m->getIndex());
 			am->setModule(m);
-			Project::getInstance()->getUndoManager()->beginNewTransaction();
-			Project::getInstance()->getUndoManager()->perform(am);
+			undoManager->beginNewTransaction();
+			undoManager->perform(am);
 		}
 		else if (result == 3) {
 			setRunning(false);
@@ -706,8 +707,8 @@ void SynthEditor::showContextMenu(Point<int> position) {
 		}
 		else if (result >= 30 && result <= 99) {
 			AddModuleAction* am = new AddModuleAction(this, position, result);
-			Project::getInstance()->getUndoManager()->beginNewTransaction();
-			Project::getInstance()->getUndoManager()->perform(am);
+			undoManager->beginNewTransaction();
+			undoManager->perform(am);
 		}
 		else if (result >= 1000) {
 			StringArray recent = Project::getInstance()->getRecentFiles();
@@ -847,8 +848,8 @@ void SynthEditor::addTerminal(Module* module, int pinIndex) {
 
 void SynthEditor::itemDropped(const SourceDetails& dragSourceDetails) {
 	AddModuleAction* am = new AddModuleAction(this, dragSourceDetails.localPosition, dragSourceDetails.description.toString().getIntValue());
-	Project::getInstance()->getUndoManager()->beginNewTransaction();
-	Project::getInstance()->getUndoManager()->perform(am);
+	undoManager->beginNewTransaction();
+	undoManager->perform(am);
 };
 
 
@@ -936,8 +937,8 @@ bool SynthEditor::keyPressed(const KeyPress& key)
 {
 	if (key.getKeyCode() == KeyPress::deleteKey || key.getKeyCode() == KeyPress::backspaceKey) {
 		RemoveSelectedAction* rsa = new RemoveSelectedAction(this);
-		Project::getInstance()->getUndoManager()->beginNewTransaction();
-		Project::getInstance()->getUndoManager()->perform(rsa);
+		undoManager->beginNewTransaction();
+		undoManager->perform(rsa);
 	}
 	if (key.getKeyCode() == 65 && isCtrlDown) {
 		for (int i = 0; i < root->getModules()->size(); i++) {
@@ -987,7 +988,7 @@ void SynthEditor::cleanUp() {
 	//deleteSelected(true);
 	selectionModel.getSelectedModules().clear();
 	Mixer::getInstance()->clearChannels();
-	Project::getInstance()->getUndoManager()->clearUndoHistory();
+	undoManager->clearUndoHistory();
 	removeAllChangeListeners();
 	if (tab != nullptr) {
 
@@ -1001,20 +1002,15 @@ void SynthEditor::cleanUp() {
 	if (tab != nullptr)
 		tab->setCurrentTabIndex(0);
 
-	if (Project::getInstance()->getAppMode() == Project::AppMode::STUDIO) {
-		MainTabbedComponent* supplemental = Project::getInstance()->getSupplemental();
+	if (mainTab != nullptr) {
 
-		if (supplemental != nullptr) {
+		int i = mainTab->getNumTabs();
 
-			int i = supplemental->getNumTabs();
-
-			while (supplemental->getNumTabs() > 1) {
-				supplemental->removeTab(--i);
-			}
+		while (mainTab->getNumTabs() > 1) {
+			mainTab->removeTab(--i);
 		}
-		supplemental->setCurrentTabIndex(0);
 	}
-
+	mainTab->setCurrentTabIndex(0);
 
 }
 
@@ -1230,7 +1226,7 @@ void SynthEditor::openEditor(Module* m) {
 	}
 
 	Viewport* editorView = new Viewport();
-	SynthEditor* editor = new SynthEditor(_sampleRate, bufferSize);
+	SynthEditor* editor = new SynthEditor(_sampleRate, bufferSize,undoManager,mainTab, commandManager);
 	
 	editorView->setSize(500, 200);
 	editorView->setViewedComponent(editor);
@@ -1251,11 +1247,9 @@ void SynthEditor::openEditor(Module* m) {
 
 void SynthEditor::openSampleEditor(SamplerModule* sm) {
 
-	MainTabbedComponent* tab = Project::getInstance()->getSupplemental();
+	for (int i = 0; i < mainTab->getNumTabs(); i++) {
 
-	for (int i = 0; i < tab->getNumTabs(); i++) {
-
-		SampleEditor* editor = dynamic_cast<SampleEditor*>(tab->getTabContentComponent(i));
+		SampleEditor* editor = dynamic_cast<SampleEditor*>(mainTab->getTabContentComponent(i));
 
 		if (editor != nullptr) {
 			if (editor != nullptr && editor->getModule() == sm) {
@@ -1266,28 +1260,26 @@ void SynthEditor::openSampleEditor(SamplerModule* sm) {
 
 	}
 
-	Project::getInstance()->getSupplemental()->addTab("Sample editor", Colours::darkgrey, sm->getEditor(), false);
-	Project::getInstance()->getSupplemental()->setCurrentTabIndex(Project::getInstance()->getSupplemental()->getNumTabs() - 1);
+	mainTab->addTab("Sample editor", Colours::darkgrey, sm->getEditor(), false);
+	mainTab->setCurrentTabIndex(mainTab->getNumTabs() - 1);
 
 }
 
 void SynthEditor::openStepSequencer(StepSequencerModule* ssm) {
 	SequenceEditor* se = ssm->getEditor();
-	Project::getInstance()->getSupplemental()->addTab("Step sequencer", Colours::darkgrey, se, true);
-	Project::getInstance()->getSupplemental()->setCurrentTabIndex(Project::getInstance()->getSupplemental()->getNumTabs() - 1);
+	mainTab->addTab("Step sequencer", Colours::darkgrey, se, true);
+	mainTab->setCurrentTabIndex(mainTab->getNumTabs() - 1);
 }
 
 void SynthEditor::openRecorder(AudioRecorderModule* arm) {
 
-	MainTabbedComponent* tab = Project::getInstance()->getSupplemental();
-
-	for (int i = 0; i < tab->getNumTabs(); i++) {
+	for (int i = 0; i < mainTab->getNumTabs(); i++) {
 
 		AudioRecorderEditor* editor = dynamic_cast<AudioRecorderEditor*>(tab->getTabContentComponent(i));
 
 		if (editor != nullptr) {
 			if (editor != nullptr && editor->getIndex() == arm->getIndex()) {
-				tab->setCurrentTabIndex(i);
+				mainTab->setCurrentTabIndex(i);
 				return;
 			}
 		}
@@ -1295,8 +1287,8 @@ void SynthEditor::openRecorder(AudioRecorderModule* arm) {
 	}
 	AudioRecorderEditor* are = arm->getEditor();
 	are->setIndex(static_cast<int>(arm->getIndex()));
-	Project::getInstance()->getSupplemental()->addTab("Audio recorder", Colours::darkgrey, are, false);
-	Project::getInstance()->getSupplemental()->setCurrentTabIndex(Project::getInstance()->getSupplemental()->getNumTabs() - 1);
+	mainTab->addTab("Audio recorder", Colours::darkgrey, are, false);
+	mainTab->setCurrentTabIndex(mainTab->getNumTabs() - 1);
 }
 
 void SynthEditor::openFile() {
@@ -1475,8 +1467,8 @@ Track* SynthEditor::createTrack()
 {
 	Point<int> pos = Point<int>(10, 10);
 	AddModuleAction* am = new AddModuleAction(this, pos, 48);
-	Project::getInstance()->getUndoManager()->beginNewTransaction();
-	Project::getInstance()->getUndoManager()->perform(am);
+	undoManager->beginNewTransaction();
+	undoManager->perform(am);
 
 	TrackIn* ti = dynamic_cast<TrackIn*>(am->getModule());
 
@@ -1523,8 +1515,8 @@ Track* SynthEditor::createTrack()
 		// already connected, create an aux out
 		else {
 			AddModuleAction* am = new AddModuleAction(this, pos, 77);
-			Project::getInstance()->getUndoManager()->beginNewTransaction();
-			Project::getInstance()->getUndoManager()->perform(am);
+			undoManager->beginNewTransaction();
+			undoManager->perform(am);
 			AuxOut* ao = dynamic_cast<AuxOut*>(am->getModule());
 			if (ao != nullptr) {
 				ao->pins.at(0)->getConnections().push_back(ti->pins.at(0));
@@ -1541,8 +1533,8 @@ Track* SynthEditor::createTrack()
 	else {
 
 		AddModuleAction* am = new AddModuleAction(this, pos, 66);
-		Project::getInstance()->getUndoManager()->beginNewTransaction();
-		Project::getInstance()->getUndoManager()->perform(am);
+		undoManager->beginNewTransaction();
+		undoManager->perform(am);
 		audioOut = dynamic_cast<AudioOut*>(am->getModule());
 
 		if (audioOut != nullptr) {
@@ -1564,8 +1556,8 @@ void SynthEditor::setTab(juce::TabbedComponent* t) {
 
 void SynthEditor::addConnection(const MouseEvent& e, Module* source) {
 	AddConnectionAction* ac = new AddConnectionAction(this, source);
-	Project::getInstance()->getUndoManager()->beginNewTransaction();
-	Project::getInstance()->getUndoManager()->perform(ac);
+	undoManager->beginNewTransaction();
+	undoManager->perform(ac);
 	resized();
 	repaint();
 }
@@ -1629,8 +1621,8 @@ void SynthEditor::duplicateSelected() {
 		Point<int> pos = m->getPosition();
 		pos.addXY(10, m->getBounds().getY() + 10);
 		DuplicateModuleAction* am = new DuplicateModuleAction(this, pos, m);
-		Project::getInstance()->getUndoManager()->beginNewTransaction();
-		Project::getInstance()->getUndoManager()->perform(am);
+		undoManager->beginNewTransaction();
+		undoManager->perform(am);
 	}
 }
 
@@ -1866,8 +1858,8 @@ bool SynthEditor::perform(const InvocationInfo& info) {
 	 */
 	else if (info.commandID == SynthEditor::CommandIds::DELETE_SELECTED) {
 		RemoveSelectedAction* rsa = new RemoveSelectedAction(this);
-		Project::getInstance()->getUndoManager()->beginNewTransaction();
-		Project::getInstance()->getUndoManager()->perform(rsa);
+		undoManager->beginNewTransaction();
+		undoManager->perform(rsa);
 		return true;
 	}
 	else if (info.commandID == SynthEditor::CommandIds::ALIGN_Y) {
