@@ -19,7 +19,7 @@ using juce::Graphics;
 using juce::ResizableWindow;
 
 //==============================================================================
-EditorComponent::EditorComponent(float sampleRate, int bufferSize, PropertyView* properties, juce::UndoManager* undoManager, ApplicationCommandManager* commandManager) : resizerBar(&stretchableManager, 1, false)
+EditorComponent::EditorComponent(float sampleRate, int bufferSize, PropertyView* properties, juce::UndoManager* undoManager, ApplicationCommandManager* commandManager, Project* project) : resizerBar(&stretchableManager, 1, false)
 {
 	this->bufferSize = bufferSize;
 	this->sampleRate = sampleRate;
@@ -28,7 +28,7 @@ EditorComponent::EditorComponent(float sampleRate, int bufferSize, PropertyView*
 	topTab = new MainTabbedComponent();
 	bottomTab = new MainTabbedComponent();
 
-	editor = new SynthEditor(sampleRate, bufferSize, undoManager, bottomTab, commandManager);
+	editor = new SynthEditor(sampleRate, bufferSize, undoManager, bottomTab, commandManager, project);
 	editorView = new Viewport();
 
 	editorView->setSize(500, 200);
@@ -40,8 +40,8 @@ EditorComponent::EditorComponent(float sampleRate, int bufferSize, PropertyView*
 
 	topTab->addTab("Editor", juce::Colours::grey, editorView, false);
 
+	Mixer* mixer = new Mixer();
 	mixerPanel = new MixerPanel();
-	mixer = Mixer::getInstance();
 	mixerPanel->setMixer(mixer);
 
 	mixerView = new Viewport();
@@ -51,8 +51,9 @@ EditorComponent::EditorComponent(float sampleRate, int bufferSize, PropertyView*
 	mixerView->setWantsKeyboardFocus(false);
 	mixerView->setMouseClickGrabsKeyboardFocus(false);
 
-	editor->setMixer(mixerPanel);
+	editor->setMixerPanel(mixerPanel);
 	editor->addChangeListener(this);
+	editor->setMixer(mixer);
 
 	bottomTab->addTab("Mixer", Colours::darkgrey, mixerView, false);
 
@@ -84,7 +85,8 @@ void EditorComponent::ImportAudio() {
 
 		if (file.getFileExtension() == ".wav" || file.getFileExtension() == ".aif" || file.getFileExtension() == ".mp3") {
 			navigator->getCurrentTrack()->addRegion(file.getFileNameWithoutExtension(), file, this->sampleRate);
-			Project::getInstance()->addAudioFile(file.getFileNameWithoutExtension(), file.getFullPathName());
+			// TODO : add audio files froim elsewhere
+			// Project::getInstance()->addAudioFile(file.getFileNameWithoutExtension(), file.getFullPathName());
 			navigator->repaint();
 		}
 
@@ -145,7 +147,7 @@ void EditorComponent::OpenTrackView()
 {
 	if (navigator == nullptr) {
 		trackView = new Viewport();
-		navigator = new TrackNavigator(AudioManager::getInstance()->getDeviceManager(), trackView, propertyView, editor->getSampleRate());
+		navigator = new TrackNavigator(AudioManager::getInstance()->getDeviceManager(), trackView, propertyView, editor->getSampleRate(), mixer);
 
 		PrefabFactory::getInstance()->init(navigator);
 		addMouseListener(navigator, true);

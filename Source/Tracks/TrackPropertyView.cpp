@@ -31,9 +31,10 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-TrackPropertyView::TrackPropertyView ()
+TrackPropertyView::TrackPropertyView (Mixer* mixer)
 {
     //[Constructor_pre] You can add your own custom stuff here..
+    this->mixer = mixer;
     //[/Constructor_pre]
 
 
@@ -52,7 +53,7 @@ TrackPropertyView::TrackPropertyView ()
     dropShadower = new DropShadower(*dropShadow);
     dropShadower->setOwner(this);
 
-    Mixer::getInstance()->addChangeListener(this);
+    mixer->addChangeListener(this);
     addAndMakeVisible(hResizer);
 
     //[/Constructor]
@@ -140,11 +141,11 @@ void TrackPropertyView::setOffset(int offset)
 void TrackPropertyView::addTrack(Track* track)
 {
     
-	TrackPropertyPanel* panel = new TrackPropertyPanel();
+	TrackPropertyPanel* panel = new TrackPropertyPanel(mixer);
 
     panel->setName(track->getName());
 
-    Mixer::getInstance()->addChangeListener(panel);
+    mixer->addChangeListener(panel);
 
 	int yPos = 0;
 
@@ -173,12 +174,12 @@ void TrackPropertyView::addTrack(Track* track)
 }
 
 void TrackPropertyView::changeListenerCallback (ChangeBroadcaster* source) {
-    if (Mixer::getInstance() == source){
+    if (mixer == source){
         
-        int i = Mixer::getInstance()->getTracks().size() - 1;
+        int i = mixer->getTracks().size() - 1;
         
-        while (Mixer::getInstance()->getTracks().size() > trackProperties.size()) {
-            addTrack(Mixer::getInstance()->getTracks().at(i--));
+        while (mixer->getTracks().size() > trackProperties.size()) {
+            addTrack(mixer->getTracks().at(i--));
         }
         
         int height = 0;

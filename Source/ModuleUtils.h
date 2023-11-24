@@ -106,7 +106,7 @@ public:
     
     static void loadPins(Module* m,ValueTree& mod);
     
-    static void removeModule(Module *root,Module* module,ChangeBroadcaster* broadcaster);
+    static void removeModule(Module *root,Module* module,ChangeBroadcaster* broadcaster, Mixer* mixer);
     
     static bool connectModules(Module* source, Module* target, int pin);
     

@@ -12,12 +12,11 @@
 #include "AudioIn.h"
 #include "AudioOut.h"
 
-Mixer *Mixer::instance = NULL;
-
 Mixer::Mixer() {   
     outputChannels.reserve(2);
     inputChannels.reserve(2);
     auxChannels.reserve(2);
+    channels.reserve(2);
 }
 
 Mixer::~Mixer() {

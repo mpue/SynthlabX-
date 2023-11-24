@@ -44,7 +44,7 @@ class TrackPropertyView  : public Component,
 {
 public:
     //==============================================================================
-    TrackPropertyView ();
+    TrackPropertyView (Mixer* mixer);
     ~TrackPropertyView();
 
     //==============================================================================
@@ -70,6 +70,7 @@ private:
     ScopedPointer<DropShadow> dropShadow;
     ScopedPointer<DropShadower> dropShadower;
     ResizableEdgeComponent* hResizer;
+    Mixer* mixer;
     //[/UserVariables]
 
     //==============================================================================

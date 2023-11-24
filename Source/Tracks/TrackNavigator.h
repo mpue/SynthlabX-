@@ -21,6 +21,7 @@
 #include <vector>
 #include <map>
 #include "TimeLine.h"
+#include "Mixer.h"
 using namespace juce;
 //==============================================================================
 /*
@@ -34,7 +35,7 @@ class TrackNavigator : public Component,
 	public ScrollBar::Listener
 {
 public:
-	TrackNavigator(AudioDeviceManager* manager, Viewport* view, PropertyView* propertyView, double sampleRate);
+	TrackNavigator(AudioDeviceManager* manager, Viewport* view, PropertyView* propertyView, double sampleRate, Mixer* mixer);
 	~TrackNavigator();
 
 	void paint(Graphics&) override;
@@ -119,11 +120,12 @@ private:
 
 	int timelineOffset = 25;
 	double scrollbarOffset = 0;
-	
+
 	double sampleRate = 0;
 
 	MidiMessage message;
 	PropertyView* propertyView;
+	Mixer* mixer;
 
 	virtual void changeListenerCallback(ChangeBroadcaster* source) override;
 	virtual void mouseDown(const MouseEvent& event) override;

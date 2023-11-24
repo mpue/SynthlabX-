@@ -10,8 +10,9 @@
 
 #include "RemoveSelectedAction.h"
 
-RemoveSelectedAction::RemoveSelectedAction(SynthEditor* editor) {
+RemoveSelectedAction::RemoveSelectedAction(SynthEditor* editor, Mixer* mixer) {
     this->editor = editor;
+    this->mixer = mixer;
 }
 
 
@@ -38,7 +39,7 @@ void RemoveSelectedAction::removeSelectedItem() {
     
     for(std::vector<Module*>::iterator it = editor->getModule()->getModules()->begin();it != editor->getModule()->getModules()->end();it++) {
         if ((*it)->isSelected())
-            ModuleUtils::removeModule(editor->getModule(), (*it), editor);
+            ModuleUtils::removeModule(editor->getModule(), (*it), editor, mixer);
     }
     for(std::vector<Module*>::iterator it = editor->getModule()->getModules()->begin();it != editor->getModule()->getModules()->end();) {
         if ((*it)->isSelected()) {

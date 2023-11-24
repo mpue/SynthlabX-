@@ -389,7 +389,8 @@ int AudioRegion::getNumSamples() {
 void AudioRegion::componentMovedOrResized (Component& component, bool wasMoved, bool wasResized) {
     
     if (wasMoved) {
-        long tracklen = Project::getInstance()->getTrackLength();
+        // TODO : Set track length accordingly
+        long tracklen = 600;
         double sampleRate = 48000; // Project::getInstance()->getSampleRate();
         
         long sampleNum = (tracklen / (tracklen * zoom)) * getBounds().getX() * getSampleRate();

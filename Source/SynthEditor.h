@@ -35,7 +35,7 @@ class SynthEditor  : public Component,
 {
 public:
 
-    SynthEditor (double sampleRate, int buffersize, juce::UndoManager* undoManager, MainTabbedComponent* mainTab, ApplicationCommandManager* commandManager);
+    SynthEditor (double sampleRate, int buffersize, juce::UndoManager* undoManager, MainTabbedComponent* mainTab, ApplicationCommandManager* commandManager, Project* project);
     SynthEditor ();
     ~SynthEditor();
 
@@ -162,8 +162,10 @@ public:
     void setTab(TabbedComponent* t);
     void setModule(Module * m, bool deleteWhenRemoved);
     Module* getModule();
-    void setMixer(MixerPanel* mixer);
-    MixerPanel* getMixer();
+    void setMixerPanel(MixerPanel* mixer);
+    MixerPanel* getMixerPanel();
+    void setMixer(Mixer* mixer);
+    Mixer* getMixer();
 
     bool isDirty() override;
     void setDirty(bool dirty) override;
@@ -253,8 +255,9 @@ private:
     
     SelectionModel selectionModel;
   
-    MixerPanel* mixer = nullptr;
-    
+    MixerPanel* mixerPanel = nullptr;
+    Mixer* mixer = nullptr;
+
     bool deleteModuleWhenRemoved = true;
     
     int index = 0;
@@ -269,8 +272,8 @@ private:
     TrackNavigator* navigator = nullptr;
     juce::UndoManager* undoManager;
     MainTabbedComponent* mainTab;
-
     ApplicationCommandManager* commandManager;
+    Project* project;
 
     //[/UserVariables]
 

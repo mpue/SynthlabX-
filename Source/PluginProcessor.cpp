@@ -23,6 +23,7 @@ SynthlabXAudioProcessor::SynthlabXAudioProcessor()
 	)
 #endif
 {
+	project = new Project();
 
 
 }
@@ -99,14 +100,13 @@ void SynthlabXAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlo
 {
 	// Use this method as the place to do any pre-playback
 	// initialisation that you need..	
-	audioProcessor = new SynthlabAudioProcessor(sampleRate, samplesPerBlock);
+	audioProcessor = new SynthlabAudioProcessor(sampleRate, samplesPerBlock, project);
 	audioProcessor->prepareToPlay(sampleRate, samplesPerBlock);
 }
 
 void SynthlabXAudioProcessor::releaseResources()
 {
-	// When playback stops, you can use this as an opportunity to free up any
-	// spare memory, etc.
+	audioProcessor->running = false;
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -148,7 +148,7 @@ bool SynthlabXAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* SynthlabXAudioProcessor::createEditor()
 {
-	synthEditor = new SynthlabXAudioProcessorEditor(*this);
+	synthEditor = new SynthlabXAudioProcessorEditor(*this, project);
 	
 	return synthEditor;
 }

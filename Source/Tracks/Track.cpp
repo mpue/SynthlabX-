@@ -26,7 +26,8 @@ Track::Track(Type type, double sampleRate, MultiComponentDragger* dragger)
     
     this->type = type;
 	this->sampleRate = sampleRate;
-    this->maxLength = Project::getInstance()->getTrackLength();
+    // TODO : Set max length accordingly
+    this->maxLength = 600;
     this->volume = 1;
     this->pan = 0;
     this->audioBuffer = new AudioSampleBuffer(2,maxLength*sampleRate);
@@ -184,8 +185,8 @@ Region* Track::addRegion(String refId, File file, double sampleRate, long sample
     audioBuffer->copyFrom(1, region->getSampleOffset(), *region->getBuffer(), 1, 0, region->getBuffer()->getNumSamples());
 
     repaint();
-
-    long tracklen = Project::getInstance()->getTrackLength();          
+    // TODO : set track lemgth 
+    long tracklen = 600;
     float x = (sampleOffset / (tracklen / (tracklen * zoom))) / sampleRate;
 
     region->setTopLeftPosition(Point<int>(x, region->getBounds().getY()));

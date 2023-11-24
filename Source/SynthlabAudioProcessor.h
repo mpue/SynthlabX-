@@ -20,7 +20,7 @@ class SynthlabAudioProcessor {
     
 public:
     
-    SynthlabAudioProcessor(float sampleRate, int bufferSize);
+    SynthlabAudioProcessor(float sampleRate, int bufferSize, Project* p);
     virtual ~SynthlabAudioProcessor() ;
     
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate);
@@ -29,7 +29,7 @@ public:
     
     void processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages);
 
-    void handleIncomingMidiMessage (juce::MidiInput* source, const juce::MidiMessage& message);
+    void handleIncomingMidiMessage (juce::MidiInput* source, const juce::MidiMessage& message, Module* root);
     void sendGateMessage(Module* module, int channel, int velocity,int note,bool on);
     void sendNoteMessage(Module* module, int channel, int note);
     void sendClockMessage(Module* module, int channel);
@@ -51,14 +51,14 @@ public:
     std::vector<AuxOut*> auxChannels;
     
     SynthEditor* editor;
-
+    Project* project;
+    volatile bool running = true;
 private:
     long currentTime = 0;
     long lastTime = 0;
 
     Sampler* defaultSampler = nullptr;
     Mixer* mixer = nullptr;
-    volatile bool running = false;
     
     int cpuLoad = 0;
     int currentSample = 0;

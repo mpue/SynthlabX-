@@ -49,7 +49,7 @@ class TrackPropertyPanel  : public Component,
 {
 public:
     //==============================================================================
-    TrackPropertyPanel ();
+    TrackPropertyPanel (Mixer* mixer);
     ~TrackPropertyPanel();
 
     //==============================================================================
@@ -81,6 +81,7 @@ private:
 	bool selected;
 	ResizableEdgeComponent* resizer;
     TrackPropertyConstrainer* constrainer;
+    Mixer* mixer = nullptr;
 	bool shiftPressed = false;
     //[/UserVariables]
 

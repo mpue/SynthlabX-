@@ -65,7 +65,7 @@ using juce::Button;
 using juce::ToolbarButton;
 
 //==============================================================================
-MainComponent::MainComponent() : resizerBar(&stretchableManager, 1, true)
+MainComponent::MainComponent(Project* project) : resizerBar(&stretchableManager, 1, true)
 {
 
 	// Make sure you set the size of the component after
@@ -81,7 +81,7 @@ MainComponent::MainComponent() : resizerBar(&stretchableManager, 1, true)
 	
 
 	undoManager = new juce::UndoManager();
-
+	this->project = project;
 
 #if defined(JUCE_PLUGINHOST_AU) || defined(JUCE_PLUGINHOST_VST)
 #endif
@@ -112,7 +112,7 @@ MainComponent::MainComponent() : resizerBar(&stretchableManager, 1, true)
 MainComponent::~MainComponent()
 {
 	running = false;
-
+	stopTimer();
 	shutdownAudio();
 
 #if JUCE_MAC
@@ -151,7 +151,7 @@ MainComponent::~MainComponent()
 	delete undoManager;
 
 	PrefabFactory::getInstance()->destroy();
-	Project::getInstance()->destroy();
+
 
 	// This shuts down the audio device and clears the audio source.
 
@@ -249,7 +249,7 @@ void MainComponent::createCPUMeter() {
 
 void MainComponent::createStudioLayout() {
 	propertyView = new PropertyView(defaultSampler);
-	editorView = new EditorComponent(sampleRate, buffersize, propertyView, undoManager,this);
+	editorView = new EditorComponent(sampleRate, buffersize, propertyView, undoManager,this, project);
 	editor = editorView->getEditor();
 	mixer = editorView->getMixer();
 	mixerPanel = editorView->getMixerPanel();
@@ -293,7 +293,7 @@ void MainComponent::createStudioLayout() {
 
 void MainComponent::timerCallback() {
 
-	if (mixerPanel != nullptr) {
+	if (mixerPanel != nullptr && mixer != nullptr) {
 		for (int i = 0; i < mixer->getChannels().size(); i++) {
 			mixerPanel->getChannels().at(i)->setMagnitude(0, mixer->getChannels().at(i)->magnitudeLeft);
 			mixerPanel->getChannels().at(i)->setMagnitude(1, mixer->getChannels().at(i)->magnitudeRight);
@@ -830,12 +830,12 @@ void MainComponent::buttonClicked(Button* b)
 	if (tb != NULL) {
 
 		if (tb->getItemId() == toolbarFactory->delete_element) {
-			RemoveSelectedAction* rma = new RemoveSelectedAction(editor);
+			RemoveSelectedAction* rma = new RemoveSelectedAction(editor, mixer);
 			undoManager->beginNewTransaction();
 			undoManager->perform(rma);
 		}
 		else if (tb->getItemId() == toolbarFactory->doc_new) {
-			Project::getInstance()->setNewFile(true);
+			project->setNewFile(true);
 			editor->setRunning(false);
 			editor->cleanUp();
 			editor->newFile();

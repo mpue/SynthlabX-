@@ -28,19 +28,20 @@ using namespace std;
 class Project : public ChangeBroadcaster {
     
 public:
+
+    Project() {        
+        this->tracklength = DEFAULT_TRACK_LENGTH;
+        name = "empty Project";
+        this->config = new ProjectConfig();
+    }
     
+    ~Project() {
+         delete config;
+    }
+
     static long DEFAULT_TRACK_LENGTH;
     static int  DEFAULT_TRACK_HEIGHT;
     static float DEFAULT_TEMPO;
-
-    static Project* getInstance() {
-        if (instance == NULL) {
-            instance = new Project();
-        }
-        return instance;
-    }
-    
-    void destroy();
     
     juce::StringArray& getRecentFiles();
     void loadRecentFileList();
@@ -78,34 +79,7 @@ public:
     double snap(double location, double raster);
     
 protected:
-    Project() {        
-        this->tracklength = DEFAULT_TRACK_LENGTH;
-        name = "empty Project";
-        this->config = new ProjectConfig();
-    }
-    
-    ~Project() {
         
-        // cleanup existing and opened windows
-        
-        for (std::vector<juce::DialogWindow*>::iterator it = openWindows.begin();it != openWindows.end();) {
-            if ((*it) != nullptr) {
-                if ((*it)->isVisible()){
-                    (*it)->setVisible(false);
-                    delete (*it);
-                }
-            }
-            it = openWindows.erase(it);
-        }
-                    
-        // finally delete the according resources       
-        delete config;
-    }
-    
-    ApplicationCommandManager* commandManager;
-    
-    static Project* instance;
-    
     juce::StringArray recentFiles;
     CustomLookAndFeel* lookAndFeel;    
     std::vector<juce::DialogWindow*> openWindows;
@@ -119,8 +93,7 @@ protected:
     bool dirty = false;
     
     int tolerance = 1;
-    
-
+   
     String name;
     long tracklength;
     double sampleRate;

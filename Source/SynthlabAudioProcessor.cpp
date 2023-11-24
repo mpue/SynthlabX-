@@ -21,15 +21,15 @@
 
 #define M_PI 3.141592653589793238
 
-SynthlabAudioProcessor::SynthlabAudioProcessor(float sampleRate, int bufferSize) {
+SynthlabAudioProcessor::SynthlabAudioProcessor(float sampleRate, int bufferSize, Project* project) {
     this->sampleRate = sampleRate;
     this->buffersize = bufferSize;
     // a global sampler object which allows us to play audio at any place like for preview for example
-    mixer = Mixer::getInstance();
+    this->project = project;
 }
 
 SynthlabAudioProcessor::~SynthlabAudioProcessor() {
-    delete defaultSampler;
+    Logger::writeToLog("Releasing");
 }
 
 //==============================================================================
@@ -39,8 +39,6 @@ void SynthlabAudioProcessor::prepareToPlay (int samplesPerBlockExpected, double 
     
     this->sampleRate = sampleRate;
     this->buffersize = samplesPerBlockExpected;
-       
-    
 }
 
 int SynthlabAudioProcessor::getNumActiveChannels(int i) {
@@ -62,10 +60,8 @@ void SynthlabAudioProcessor::releaseResources()
 {
 }
 
-void SynthlabAudioProcessor::handleIncomingMidiMessage(juce::MidiInput *source, const juce::MidiMessage &message) {
+void SynthlabAudioProcessor::handleIncomingMidiMessage(juce::MidiInput *source, const juce::MidiMessage &message, Module* root) {
     
-    Module* root = Project::getInstance()->getRoot();
-
     if (message.isNoteOn() && message.getNoteNumber() > 7) {
         for (int i = 0; i < root->getModules()->size();i++) {
             sendNoteMessage(root->getModules()->at(i), message.getChannel(),message.getNoteNumber());
@@ -288,12 +284,16 @@ void SynthlabAudioProcessor::disableAllMidiInputs() {
 
 void SynthlabAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) {
 
+    if (mixer == nullptr) {
+        return;
+    }
+
     MidiMessage m;
     int time;
-
+    
     for (MidiBuffer::Iterator i(midiMessages); i.getNextEvent(m, time);)
     {
-        handleIncomingMidiMessage(nullptr, m);
+        handleIncomingMidiMessage(nullptr, m, project->getRoot());
     }
 
     lastTime = (long)Time::getMillisecondCounterHiRes() - currentTime;
@@ -316,8 +316,7 @@ void SynthlabAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
         }
     }
 
-    if (Project::getInstance()->getRoot() != nullptr)
-        processModule(Project::getInstance()->getRoot());
+    processModule(project->getRoot());
 
     std::vector<AudioOut*> outputChannels = mixer->getOutputChannels();
     std::vector<AudioIn*> inputChannels = mixer->getInputChannels();

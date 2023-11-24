@@ -18,9 +18,6 @@ using juce::XmlElement;
 using juce::XmlDocument;
 using juce::OutputStream;
 
-
-Project *Project::instance = NULL;
-
 long  Project::DEFAULT_TRACK_LENGTH = 600;
 int   Project::DEFAULT_TRACK_HEIGHT = 75;
 float Project::DEFAULT_TEMPO = 100.0f;
@@ -102,10 +99,6 @@ void Project::loadRecentFileList() {
     }
     
     
-}
-
-void Project::destroy() {
-    delete instance;
 }
 
 juce::StringArray& Project::getRecentFiles() {

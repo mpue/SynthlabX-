@@ -59,7 +59,7 @@ SynthEditor::SynthEditor() {
 }
 
 
-SynthEditor::SynthEditor(double sampleRate, int buffersize, juce::UndoManager* undoManager, MainTabbedComponent* mainTab, ApplicationCommandManager* commandManager)
+SynthEditor::SynthEditor(double sampleRate, int buffersize, juce::UndoManager* undoManager, MainTabbedComponent* mainTab, ApplicationCommandManager* commandManager, Project* project)
 {
 	Logger::writeToLog("Creating SynthEditor with sample rate " + String(sampleRate) + " kHz and buffer size of " + String(buffersize) + " bytes.");
 
@@ -68,15 +68,12 @@ SynthEditor::SynthEditor(double sampleRate, int buffersize, juce::UndoManager* u
 	this->undoManager = undoManager;
 	this->mainTab = mainTab;
 	this->commandManager = commandManager;
+	this->project = project;
 
 	setSize(1280, 800);
 
 	root = new Module("Root");
-
-	// only the topmost module can be root
-	if (Project::getInstance()->getRoot() == nullptr) {
-		Project::getInstance()->setRoot(root);
-	}
+	project->setRoot(root);
 
 	selectionModel.setRoot(root);
 
@@ -88,7 +85,7 @@ SynthEditor::SynthEditor(double sampleRate, int buffersize, juce::UndoManager* u
 
 	linePath = Path();
 
-	commandManager->registerAllCommandsForTarget(this);	
+	commandManager->registerAllCommandsForTarget(this);
 }
 
 SynthEditor::~SynthEditor()
@@ -674,8 +671,8 @@ void SynthEditor::showContextMenu(Point<int> position) {
 
 		PopupMenu recentFiles = PopupMenu();
 
-		Project::getInstance()->loadRecentFileList();
-		StringArray recent = Project::getInstance()->getRecentFiles();
+		project->loadRecentFileList();
+		StringArray recent = project->getRecentFiles();
 
 		for (int i = 0; i < recent.size(); i++) {
 			recentFiles.addItem(i + 1000, recent.getReference(i));
@@ -692,7 +689,7 @@ void SynthEditor::showContextMenu(Point<int> position) {
 		else if (result == 1) {
 			Module* m = new Module("Module");
 			m->setIndex(PrefabFactory::getInstance()->getNextModuleIndex());
-			AddModuleAction* am = new AddModuleAction(this, position, m->getIndex());
+			AddModuleAction* am = new AddModuleAction(this, mixer, position, m->getIndex());
 			am->setModule(m);
 			undoManager->beginNewTransaction();
 			undoManager->perform(am);
@@ -706,12 +703,12 @@ void SynthEditor::showContextMenu(Point<int> position) {
 			locked = !locked;
 		}
 		else if (result >= 30 && result <= 99) {
-			AddModuleAction* am = new AddModuleAction(this, position, result);
+			AddModuleAction* am = new AddModuleAction(this, mixer, position, result);
 			undoManager->beginNewTransaction();
 			undoManager->perform(am);
 		}
 		else if (result >= 1000) {
-			StringArray recent = Project::getInstance()->getRecentFiles();
+			StringArray recent = project->getRecentFiles();
 			String path = recent.getReference(result - 1000);
 			File file = File(path);
 
@@ -724,7 +721,7 @@ void SynthEditor::showContextMenu(Point<int> position) {
 				newFile();
 				loadFromString(data);
 				updateProject(file);
-				Project::getInstance()->setNewFile(false);
+				project->setNewFile(false);
 				setRunning(true);
 			}
 
@@ -847,7 +844,7 @@ void SynthEditor::addTerminal(Module* module, int pinIndex) {
 }
 
 void SynthEditor::itemDropped(const SourceDetails& dragSourceDetails) {
-	AddModuleAction* am = new AddModuleAction(this, dragSourceDetails.localPosition, dragSourceDetails.description.toString().getIntValue());
+	AddModuleAction* am = new AddModuleAction(this, mixer, dragSourceDetails.localPosition, dragSourceDetails.description.toString().getIntValue());
 	undoManager->beginNewTransaction();
 	undoManager->perform(am);
 };
@@ -925,18 +922,26 @@ SelectionModel& SynthEditor::getSelectionModel() {
 	return selectionModel;
 }
 
-void SynthEditor::setMixer(MixerPanel* mixer) {
+void SynthEditor::setMixerPanel(MixerPanel* mixer) {
+	this->mixerPanel = mixer;
+}
+
+MixerPanel* SynthEditor::getMixerPanel() {
+	return mixerPanel;
+}
+
+void SynthEditor::setMixer(Mixer* mixer) {
 	this->mixer = mixer;
 }
 
-MixerPanel* SynthEditor::getMixer() {
+Mixer* SynthEditor::getMixer() {
 	return mixer;
 }
 
 bool SynthEditor::keyPressed(const KeyPress& key)
 {
 	if (key.getKeyCode() == KeyPress::deleteKey || key.getKeyCode() == KeyPress::backspaceKey) {
-		RemoveSelectedAction* rsa = new RemoveSelectedAction(this);
+		RemoveSelectedAction* rsa = new RemoveSelectedAction(this, mixer);
 		undoManager->beginNewTransaction();
 		undoManager->perform(rsa);
 	}
@@ -964,9 +969,13 @@ void SynthEditor::modifierKeysChanged(const ModifierKeys& modifiers)
 }
 
 void SynthEditor::cleanUp() {
-	mixer->removeAllChannels();
-	for (std::vector<Module*>::iterator it = root->getModules()->begin(); it != root->getModules()->end(); it++) {
-		ModuleUtils::removeModule(root, (*it), this);
+	if (mixer != nullptr) {
+
+		mixer->removeAllChannels();
+		for (std::vector<Module*>::iterator it = root->getModules()->begin(); it != root->getModules()->end(); it++) {
+			ModuleUtils::removeModule(root, (*it), this,mixer);
+		}
+		mixer->clearChannels();
 	}
 	for (std::vector<Module*>::iterator it = root->getModules()->begin(); it != root->getModules()->end();) {
 		for (std::vector<Connection*>::iterator it2 = (*it)->getConnections()->begin(); it2 != (*it)->getConnections()->end();) {
@@ -987,7 +996,6 @@ void SynthEditor::cleanUp() {
 	root = nullptr;
 	//deleteSelected(true);
 	selectionModel.getSelectedModules().clear();
-	Mixer::getInstance()->clearChannels();
 	undoManager->clearUndoHistory();
 	removeAllChangeListeners();
 	if (tab != nullptr) {
@@ -1020,7 +1028,7 @@ void SynthEditor::newFile() {
 	selectionModel.setRoot(root);
 	setLocked(true);
 	updateProject(File());
-	Project::getInstance()->setRoot(root);
+	project->setRoot(root);
 	setLocked(false);
 	repaint();
 }
@@ -1088,7 +1096,7 @@ Module* SynthEditor::loadModule() {
 		File file = chooser.getResult();
 		std::unique_ptr<XmlElement> xml = XmlDocument(file).getDocumentElement();
 
-		Project::getInstance()->addRecentFile(file.getFullPathName());
+		project->addRecentFile(file.getFullPathName());
 		ValueTree v = ValueTree::fromXml(*xml.get());
 
 		setRunning(false);
@@ -1163,7 +1171,7 @@ void SynthEditor::saveFile() {
 
 	ModuleUtils::saveStructure(root->getModules(), root->getConnections(), v);
 
-	if (Project::getInstance()->isNewFile()) {
+	if (project->isNewFile()) {
 
 		FileChooser chooser("Select target file...", File(), "*");
 
@@ -1174,7 +1182,7 @@ void SynthEditor::saveFile() {
 
 	}
 	else {
-		file = File(Project::getInstance()->getCurrentFilePath());
+		file = File(project->getCurrentFilePath());
 		if (file.exists()) {
 			fileValid = true;
 		}
@@ -1195,8 +1203,8 @@ void SynthEditor::saveFile() {
 		}
 
 		setDirty(false);
-		Project::getInstance()->save(file.getParentDirectory().getFullPathName() + "\\" + file.getFileNameWithoutExtension() + "_audio.xml");
-		Project::getInstance()->setNewFile(false);
+		project->save(file.getParentDirectory().getFullPathName() + "\\" + file.getFileNameWithoutExtension() + "_audio.xml");
+		project->setNewFile(false);
 		updateProject(file);
 	}
 #endif
@@ -1226,8 +1234,8 @@ void SynthEditor::openEditor(Module* m) {
 	}
 
 	Viewport* editorView = new Viewport();
-	SynthEditor* editor = new SynthEditor(_sampleRate, bufferSize,undoManager,mainTab, commandManager);
-	
+	SynthEditor* editor = new SynthEditor(_sampleRate, bufferSize, undoManager, mainTab, commandManager, project);
+
 	editorView->setSize(500, 200);
 	editorView->setViewedComponent(editor);
 	editorView->setScrollBarsShown(true, true);
@@ -1237,7 +1245,7 @@ void SynthEditor::openEditor(Module* m) {
 
 	editor->setModule(m, false);
 	editor->setIndex(static_cast<int>(m->getIndex()));
-	editor->setTab(tab);	
+	editor->setTab(tab);
 
 	tab->addTab(m->getName(), Colours::darkgrey, editorView, false);
 	openViews.push_back(editorView);
@@ -1309,7 +1317,7 @@ void SynthEditor::openFile() {
 		File file = chooser.getResult();
 		std::unique_ptr<XmlElement> xml = XmlDocument(file).getDocumentElement();
 
-		Project::getInstance()->addRecentFile(file.getFullPathName());
+		project->addRecentFile(file.getFullPathName());
 #endif
 		ValueTree v = ValueTree::fromXml(*xml.get());
 		setRunning(false);
@@ -1333,7 +1341,7 @@ void SynthEditor::openFile() {
 
 		xml = nullptr;
 
-		
+
 
 		openTracks(file);
 
@@ -1349,9 +1357,9 @@ void SynthEditor::openFile() {
 
 void SynthEditor::openTracks(File file)
 {
-	
+
 	String path = file.getParentDirectory().getFullPathName();
-	
+
 	String audioDataFileName = file.getFileNameWithoutExtension() + "_audio.xml";
 	audioDataFileName = path + "\\" + audioDataFileName;
 
@@ -1365,7 +1373,7 @@ void SynthEditor::openTracks(File file)
 		String path = audio.getChild(i).getProperty("path");
 		String id = audio.getChild(i).getProperty("refId");
 
-		Project::getInstance()->addAudioFile(id, path);
+		project->addAudioFile(id, path);
 	}
 
 	String trackDataFileName = file.getFileNameWithoutExtension() + "_tracks.xml";
@@ -1379,7 +1387,7 @@ void SynthEditor::openTracks(File file)
 	vector<TrackIn*> tracks = vector<TrackIn*>();
 
 	for (int i = 0; i < getModule()->getModules()->size(); i++) {
-		
+
 		TrackIn* ti = dynamic_cast<TrackIn*>(getModule()->getModules()->at(i));
 
 		if (ti != nullptr) {
@@ -1390,7 +1398,7 @@ void SynthEditor::openTracks(File file)
 	if (tracks.size() > 0) {
 		for (int i = 0; i < v.getNumChildren(); i++) {
 
-			ValueTree track = v.getChild(i);	
+			ValueTree track = v.getChild(i);
 			TrackIn* ti = tracks.at(i);
 
 			Track* t = navigator->addTrack(Track::Type::AUDIO, 48000);
@@ -1403,11 +1411,11 @@ void SynthEditor::openTracks(File file)
 			for (int i = 0; i < regions.getNumChildren(); i++) {
 				ValueTree region = regions.getChild(i);
 				Logger::getCurrentLogger()->writeToLog(region.getProperty("clipRefId"));
-				Region* r = t->addRegion(region.getProperty("clipRefId"), File(Project::getInstance()->getAudioPath(region.getProperty("clipRefId"))),48000.0, region.getProperty("sampleOffset").toString().getIntValue());
+				Region* r = t->addRegion(region.getProperty("clipRefId"), File(project->getAudioPath(region.getProperty("clipRefId"))), 48000.0, region.getProperty("sampleOffset").toString().getIntValue());
 				Rectangle<int> bounds = r->getBounds();
 				bounds.setWidth(region.getProperty("width"));
 				r->setBounds(bounds);
-			}		
+			}
 
 		}
 	}
@@ -1420,7 +1428,6 @@ void SynthEditor::openTracks(File file)
 void SynthEditor::configureAudioModule(Module* m, ChangeBroadcaster* broadcaster) {
 
 	AudioManager* am = AudioManager::getInstance();
-	Mixer* mixer = Mixer::getInstance();
 
 	AudioOut* out;
 
@@ -1466,7 +1473,7 @@ void SynthEditor::configureAudioModule(Module* m, ChangeBroadcaster* broadcaster
 Track* SynthEditor::createTrack()
 {
 	Point<int> pos = Point<int>(10, 10);
-	AddModuleAction* am = new AddModuleAction(this, pos, 48);
+	AddModuleAction* am = new AddModuleAction(this,mixer, pos, 48);
 	undoManager->beginNewTransaction();
 	undoManager->perform(am);
 
@@ -1514,7 +1521,7 @@ Track* SynthEditor::createTrack()
 		}
 		// already connected, create an aux out
 		else {
-			AddModuleAction* am = new AddModuleAction(this, pos, 77);
+			AddModuleAction* am = new AddModuleAction(this, mixer, pos, 77);
 			undoManager->beginNewTransaction();
 			undoManager->perform(am);
 			AuxOut* ao = dynamic_cast<AuxOut*>(am->getModule());
@@ -1532,7 +1539,7 @@ Track* SynthEditor::createTrack()
 	// no audio out, create one
 	else {
 
-		AddModuleAction* am = new AddModuleAction(this, pos, 66);
+		AddModuleAction* am = new AddModuleAction(this, mixer, pos, 66);
 		undoManager->beginNewTransaction();
 		undoManager->perform(am);
 		audioOut = dynamic_cast<AudioOut*>(am->getModule());
@@ -1611,7 +1618,7 @@ void SynthEditor::setBufferSize(int buffersize) {
 
 
 int SynthEditor::addChannel(juce::String name, Mixer::Channel::Type channeltype) {
-	return mixer->addChannel(name, channeltype);
+	return mixerPanel->addChannel(name, channeltype);
 
 }
 
@@ -1620,7 +1627,7 @@ void SynthEditor::duplicateSelected() {
 	if (m != nullptr) {
 		Point<int> pos = m->getPosition();
 		pos.addXY(10, m->getBounds().getY() + 10);
-		DuplicateModuleAction* am = new DuplicateModuleAction(this, pos, m);
+		DuplicateModuleAction* am = new DuplicateModuleAction(this, mixer, pos, m);
 		undoManager->beginNewTransaction();
 		undoManager->perform(am);
 	}
@@ -1663,21 +1670,21 @@ void SynthEditor::setDirty(bool dirty) {
 			if (editor != nullptr && editor == this) {
 
 				if (dirty) {
-					if (Project::getInstance()->isNewFile()) {
+					if (project->isNewFile()) {
 						tab->setTabName(i, "untitled*");
 					}
 					else {
-						tab->setTabName(i, Project::getInstance()->getCurrentFileName() + "*");
+						tab->setTabName(i, project->getCurrentFileName() + "*");
 					}
 				}
 				else {
-					tab->setTabName(i, Project::getInstance()->getCurrentFileName());
+					tab->setTabName(i,project->getCurrentFileName());
 				}
 			}
 		}
 	}
 	notifyDirtyListeners();
-	Project::getInstance()->setDirty(dirty);
+	project->setDirty(dirty);
 }
 
 int SynthEditor::getIndex() {
@@ -1719,7 +1726,7 @@ void SynthEditor::changeListenerCallback(juce::ChangeBroadcaster* source) {
 			cleanUp();
 			newFile();
 			loadFromString(data);
-			Project::getInstance()->setNewFile(false);
+			project->setNewFile(false);
 			setRunning(true);
 		}
 
@@ -1806,7 +1813,7 @@ bool SynthEditor::perform(const InvocationInfo& info) {
 		cleanUp();
 		newFile();
 		updateProject(File());
-		Project::getInstance()->setNewFile(true);
+		project->setNewFile(true);
 		setRunning(true);
 		return true;
 	}
@@ -1857,7 +1864,7 @@ bool SynthEditor::perform(const InvocationInfo& info) {
 	}
 	 */
 	else if (info.commandID == SynthEditor::CommandIds::DELETE_SELECTED) {
-		RemoveSelectedAction* rsa = new RemoveSelectedAction(this);
+		RemoveSelectedAction* rsa = new RemoveSelectedAction(this, mixer);
 		undoManager->beginNewTransaction();
 		undoManager->perform(rsa);
 		return true;
@@ -1988,8 +1995,8 @@ void SynthEditor::resetGUIPosition() {
 
 void SynthEditor::updateProject(URL url) {
 
-	Project::getInstance()->setCurrentFilePath(url.toString(false));
-	Project::getInstance()->setCurrentFileName(url.getFileName());
+	project->setCurrentFilePath(url.toString(false));
+	project->setCurrentFileName(url.getFileName());
 
 	for (int i = 0; i < tab->getNumTabs(); i++) {
 
@@ -2004,7 +2011,7 @@ void SynthEditor::updateProject(URL url) {
 					tab->setTabName(i, "untitled");
 				}
 				else {
-					tab->setTabName(i, Project::getInstance()->getCurrentFileName());
+					tab->setTabName(i, project->getCurrentFileName());
 				}
 
 				break;
@@ -2028,8 +2035,8 @@ void SynthEditor::exportAudio()
 
 void SynthEditor::updateProject(File file) {
 
-	Project::getInstance()->setCurrentFilePath(file.getFullPathName());
-	Project::getInstance()->setCurrentFileName(file.getFileName());
+	project->setCurrentFilePath(file.getFullPathName());
+	project->setCurrentFileName(file.getFileName());
 
 	for (int i = 0; i < tab->getNumTabs(); i++) {
 
@@ -2044,7 +2051,7 @@ void SynthEditor::updateProject(File file) {
 					tab->setTabName(i, "untitled");
 				}
 				else {
-					tab->setTabName(i, Project::getInstance()->getCurrentFileName());
+					tab->setTabName(i, project->getCurrentFileName());
 				}
 
 				break;

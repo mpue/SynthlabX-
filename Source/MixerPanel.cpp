@@ -126,7 +126,7 @@ int MixerPanel::addChannel(String name, Mixer::Channel::Type channeltype) {
 
     int index = getNextFreeChannelIndex();
 
-    MasterChannelPanel* panel = new MasterChannelPanel();
+    MasterChannelPanel* panel = new MasterChannelPanel(mixer);
     panel->setIndex(index);
     panel->setName (name);
     panel->addChangeListener(this);

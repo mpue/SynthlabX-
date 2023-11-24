@@ -18,7 +18,7 @@ using namespace juce;
 class SynthlabXAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
 public:
-    SynthlabXAudioProcessorEditor (SynthlabXAudioProcessor&);
+    SynthlabXAudioProcessorEditor (SynthlabXAudioProcessor&, Project* project);
     ~SynthlabXAudioProcessorEditor() override;
 
     //==============================================================================
@@ -30,6 +30,6 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     SynthlabXAudioProcessor& audioProcessor;
-
+    Project* project;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthlabXAudioProcessorEditor)
 };

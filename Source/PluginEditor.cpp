@@ -12,14 +12,14 @@
 
 
 //==============================================================================
-SynthlabXAudioProcessorEditor::SynthlabXAudioProcessorEditor (SynthlabXAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p)
+SynthlabXAudioProcessorEditor::SynthlabXAudioProcessorEditor (SynthlabXAudioProcessor& p, Project* project)
+    : AudioProcessorEditor (&p), audioProcessor (p), project(project)
 {
     LookAndFeel::setDefaultLookAndFeel(new CustomLookAndFeel());
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setSize (1280, 800);
-    mainComponent = new MainComponent();
+    mainComponent = new MainComponent(project);
     addAndMakeVisible(mainComponent);
     
 }

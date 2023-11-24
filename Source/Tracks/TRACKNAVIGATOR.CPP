@@ -22,11 +22,12 @@
 using namespace std;
 
 //==============================================================================
-TrackNavigator::TrackNavigator(AudioDeviceManager* deviceManager, Viewport* view, PropertyView* propertyView, double sampleRate)
+TrackNavigator::TrackNavigator(AudioDeviceManager* deviceManager, Viewport* view, PropertyView* propertyView, double sampleRate, Mixer* mixer)
 {
+	// TODO : If we ever use this again, the timeline lenght and the listeners havbe to be set.
 	this->propertyView = propertyView;
 	this->sampleRate = sampleRate;
-	this->timeLine = new TimeLine(Project::getInstance()->getTrackLength());
+	this->timeLine = new TimeLine(600);
 	this->timeLine->setBounds(0, 0, getWidth(), timelineOffset);
 	this->timeLine->setSize(getWidth(), timelineOffset);
 	addAndMakeVisible(timeLine);
@@ -36,22 +37,24 @@ TrackNavigator::TrackNavigator(AudioDeviceManager* deviceManager, Viewport* view
 	this->selector->setSize(getWidth(), getHeight());
 	this->selector->setBounds(0, 0, getWidth(), getHeight());
 	addAndMakeVisible(selector);
-	this->zoom = Project::getInstance()->getTempo() / 4;
+	this->zoom = 120 / 4;
 	this->marker = new PositionMarker(300);
 	this->position = 0;
 	this->dragger = new MultiComponentDragger();
-	Project::getInstance()->addChangeListener(this);
-	addChangeListener(Mixer::getInstance());
+	// Project::getInstance()->addChangeListener(this);
+	// addChangeListener(Mixer::getInstance());
 	addAndMakeVisible(marker);
 	marker->setAlwaysOnTop(true);
 	marker->setBounds(0, 0, 2, getHeight());
 	this->view = view;
 	view->getHorizontalScrollBar().addListener(this);
 	// setInterceptsMouseClicks(true, true);
+	this->mixer = mixer;
 }
 
 TrackNavigator::~TrackNavigator()
 {
+	stopTimer();
 	delete timeLine;
 	selector = nullptr;
 
@@ -149,7 +152,8 @@ void TrackNavigator::itemDropped(const SourceDetails& dragSourceDetails)
 		if (tracks.at(i)->isSelected()) {
 			juce::File file = juce::File(dragSourceDetails.description.toString());
 			tracks.at(i)->addRegion(file.getFileNameWithoutExtension(), file, 48000);
-			Project::getInstance()->addAudioFile(file.getFileNameWithoutExtension(), file.getFullPathName());
+			// TODO : call from elsewhere
+			// Project::getInstance()->addAudioFile(file.getFileNameWithoutExtension(), file.getFullPathName());
 			repaint();
 		}
 	}
@@ -414,9 +418,8 @@ void TrackNavigator::addTrack(Track* track) {
 	}
 
 	// set bounds accordingly
-
-	Project* p = Project::getInstance();
-	track->setBounds(0, yPos, p->getTrackLength() * this->zoom, track->getHeight());
+	// TODO: set track length accordingly
+	track->setBounds(0, yPos, 600 * this->zoom, track->getHeight());
 
 	this->tracks.push_back(track);
 	this->currentTrack = track;
@@ -425,7 +428,7 @@ void TrackNavigator::addTrack(Track* track) {
 
 	track->addChangeListener(this);
 
-	Mixer::getInstance()->addTrack(track);
+	mixer->addTrack(track);
 
 	if (zoom > 0)
 		track->setZoom(zoom);
@@ -523,18 +526,19 @@ WaveSelector* TrackNavigator::getSelector() {
 
 void TrackNavigator::changeListenerCallback(ChangeBroadcaster* source)
 {
-	updateTrackLayout(source);
+	// TODO : Refactor
+	//updateTrackLayout(source);
 
-	if (source == Project::getInstance()) {
-		tracklength = Project::getInstance()->getTrackLength();
+	//if (source == Project::getInstance()) {
+	//	tracklength = Project::getInstance()->getTrackLength();
 
-		for (int i = 0; i < tracks.size(); i++) {
-			tracks.at(i)->setTrackLength(tracklength);
-		}
-	}
-	if (Track* track = dynamic_cast<Track*>(source)) {
-		sendChangeMessage();
-	}
+	//	for (int i = 0; i < tracks.size(); i++) {
+	//		tracks.at(i)->setTrackLength(tracklength);
+	//	}
+	//}
+	//if (Track* track = dynamic_cast<Track*>(source)) {
+	//	sendChangeMessage();
+	//}
 }
 
 bool TrackNavigator::keyPressed(const KeyPress& key, Component* originatingComponent) {
@@ -556,7 +560,8 @@ bool TrackNavigator::keyPressed(const KeyPress& key, Component* originatingCompo
 		if (getMaxLength() == 0) {
 			return false;
 		}
-		this->zoom += Project::getInstance()->getTempo() / 8;
+		// TODO: set zoom properly
+		// this->zoom += Project::getInstance()->getTempo() / 8;
 		setSize(getMaxLength() * this->zoom, getHeight());
 		setZoom(zoom);
 		repaint();
@@ -566,7 +571,7 @@ bool TrackNavigator::keyPressed(const KeyPress& key, Component* originatingCompo
 		if (getMaxLength() == 0) {
 			return false;
 		}
-		this->zoom -= Project::getInstance()->getTempo() / 8;
+		// this->zoom -= Project::getInstance()->getTempo() / 8;
 		setSize(getMaxLength() * this->zoom, getHeight());
 		setZoom(zoom);
 		repaint();

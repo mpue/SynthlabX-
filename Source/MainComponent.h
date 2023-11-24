@@ -40,7 +40,7 @@ class MainComponent   : public juce::AudioAppComponent,
 {
 public:
     //==============================================================================
-    MainComponent();
+    MainComponent(Project * project);
     ~MainComponent();
 
     //==============================================================================
@@ -163,5 +163,7 @@ private:
 
     juce::UndoManager* undoManager = nullptr;
     
+    Project* project;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

@@ -16,8 +16,9 @@
 
 using juce::String;
 
-DuplicateModuleAction::DuplicateModuleAction(SynthEditor* editor, juce::Point<int> position, Module* original) {
+DuplicateModuleAction::DuplicateModuleAction(SynthEditor* editor, Mixer* mixer,juce::Point<int> position, Module* original) {
     this->editor = editor;
+    this->mixer = mixer;
     this->position = position;
     this->moduleId = original->getId();
     this->module = original;
@@ -51,7 +52,6 @@ bool DuplicateModuleAction::undo() {
 bool DuplicateModuleAction::perform() {
     
     Module* m = nullptr;    
-    Mixer* mixer = Mixer::getInstance();
 
     if (module != nullptr) {
         

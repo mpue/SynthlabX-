@@ -18,8 +18,9 @@
 
 using juce::String;
 
-AddModuleAction::AddModuleAction(SynthEditor* editor, juce::Point<int> position, long moduleId) {
+AddModuleAction::AddModuleAction(SynthEditor* editor, Mixer* mixer,juce::Point<int> position, long moduleId) {
     this->editor = editor;
+    this->mixer = mixer;
     this->position = position;
     this->moduleId = moduleId;
 }
@@ -63,7 +64,6 @@ bool AddModuleAction::perform() {
     
     AudioManager* audioManager = AudioManager::getInstance();
     AudioOut* out;
-    Mixer* mixer = Mixer::getInstance();
 
     // If the module is an audio input, output or aux we need to take special care
     // in all three cases we add connections to the mixer
@@ -91,8 +91,8 @@ bool AddModuleAction::perform() {
             out->setChannelIndex(channelIndex);
             m->setName(channelName);
             // set default volumes
-            editor->getMixer()->setVolume(channelIndex, out->getVolume());
-            editor->getMixer()->setModule(channelIndex, out);
+            editor->getMixerPanel()->setVolume(channelIndex, out->getVolume());
+            editor->getMixerPanel()->setModule(channelIndex, out);
             if (!editor->isRunning()) {
                 editor->setRunning(true);
             }
@@ -114,8 +114,8 @@ bool AddModuleAction::perform() {
         int channelIndex = editor->addChannel(channelName, Mixer::Channel::Type::AUX);
         aux->setChannelIndex(channelIndex);
         m->setName(channelName);
-        editor->getMixer()->setVolume(channelIndex, aux->getVolume());
-        editor->getMixer()->setModule(channelIndex, aux);
+        editor->getMixerPanel()->setVolume(channelIndex, aux->getVolume());
+        editor->getMixerPanel()->setModule(channelIndex, aux);
         if (!editor->isRunning()) {
             editor->setRunning(true);
         }
@@ -134,8 +134,8 @@ bool AddModuleAction::perform() {
             m->setName(channelName);
             int channelIndex = editor->addChannel(channelName, Mixer::Channel::Type::IN);
             in->setChannelIndex(channelIndex);
-            editor->getMixer()->setVolume(channelIndex, in->getVolume());
-            editor->getMixer()->setModule(channelIndex, in);
+            editor->getMixerPanel()->setVolume(channelIndex, in->getVolume());
+            editor->getMixerPanel()->setModule(channelIndex, in);
             if (!editor->isRunning()) {
                 editor->setRunning(true);
             }

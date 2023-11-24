@@ -47,7 +47,7 @@ class MasterChannelPanel  : public Component,
 {
 public:
     //==============================================================================
-    MasterChannelPanel ();
+    MasterChannelPanel (Mixer* mixer);
     ~MasterChannelPanel();
 
     //==============================================================================
@@ -114,7 +114,8 @@ private:
     int index = 0;
     Mixer::Channel* channel;
     VolumeAdjustable* module;
-    
+    Mixer* mixer = nullptr;
+
     //[/UserVariables]
 
     //==============================================================================

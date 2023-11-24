@@ -189,7 +189,9 @@ void MidiRegion::updateThumb() {
 
 void MidiRegion::componentMovedOrResized(Component& component, bool wasMoved, bool wasResized) {
 	if (wasMoved) {
-		long tracklen = Project::getInstance()->getTrackLength();
+		// TODO : set track length accordingly
+
+		long tracklen = 600;// Project::getInstance()->getTrackLength();
 
 		long sampleNum = (tracklen / (tracklen * zoom)) * getBounds().getX() * getSampleRate();
 		if (sampleNum != getSampleOffset()) {

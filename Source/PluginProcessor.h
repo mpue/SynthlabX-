@@ -59,7 +59,7 @@ public:
 private:
     SynthlabAudioProcessor* audioProcessor = nullptr;
     SynthlabXAudioProcessorEditor* synthEditor = nullptr;
-
+    Project* project = nullptr;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthlabXAudioProcessor)
 };

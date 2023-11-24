@@ -757,11 +757,9 @@ void ModuleUtils::loadPins(Module* m,ValueTree& mod) {
     }
 }
 
-void ModuleUtils::removeModule(Module *root,Module* module, ChangeBroadcaster* broadcaster) {
+void ModuleUtils::removeModule(Module *root,Module* module, ChangeBroadcaster* broadcaster, Mixer* mixer) {
     
     AudioOut* out = nullptr;
-    
-    Mixer* mixer = Mixer::getInstance();
 
     if ((out = dynamic_cast<AudioOut*>(module)) != nullptr){
         mixer->removeChannel(out->getChannelIndex());

@@ -14,7 +14,7 @@
 class DuplicateModuleAction : public juce::UndoableAction {
     
 public:
-    DuplicateModuleAction(SynthEditor* editor, juce::Point<int> position, Module* original);
+    DuplicateModuleAction(SynthEditor* editor, Mixer* mixer, juce::Point<int> position, Module* original);
     ~DuplicateModuleAction(){};
     
     virtual bool perform() override;
@@ -27,7 +27,7 @@ private:
     juce::Point<int> position;
     int moduleId;
     Module* module = nullptr;
-    
+    Mixer* mixer;
 };
 
 

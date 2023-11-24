@@ -14,20 +14,9 @@
 #include "AuxOut.h"
 #include "AudioIn.h"
 #include "AudioOut.h"
-class 		Mixer : public ChangeListener, public ChangeBroadcaster {
+class Mixer : public ChangeListener, public ChangeBroadcaster {
     
 public:
-
-    static Mixer* getInstance() {
-        if (instance == NULL) {
-            instance = new Mixer();
-        }
-        return instance;
-    }
-    
-    static void destroy() {
-        delete instance;
-    }
     
     class Channel {
         
@@ -48,9 +37,11 @@ public:
         Type channelType;
         int index;
     };
-    
 
-    inline void addTrack(Track* track) {
+    Mixer();
+    ~Mixer();
+
+    void addTrack(Track* track) {
         this->tracks.push_back(track);
         track->addChangeListener(this);
         sendChangeMessage();
@@ -60,7 +51,8 @@ public:
         return this->tracks;
     }
     
-    inline virtual void changeListenerCallback (ChangeBroadcaster* source) override {
+    
+    void changeListenerCallback (ChangeBroadcaster* source) override {
         
         if (Track* t = dynamic_cast<Track*>(source)) {
             lastModified = t;
@@ -74,7 +66,7 @@ public:
     }
     
     
-    inline void addChangeListener (ChangeListener* listener) {
+    void addChangeListener (ChangeListener* listener) {
         ChangeBroadcaster::addChangeListener(listener);
     }
     
@@ -150,10 +142,6 @@ public:
     void clearChannels();
 
 private:    
-    Mixer();
-    ~Mixer();
-    
-    static Mixer* instance;
     
     vector<Track*> tracks;
     Track* lastModified = NULL;

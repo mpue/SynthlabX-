@@ -31,9 +31,11 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-MasterChannelPanel::MasterChannelPanel ()
+MasterChannelPanel::MasterChannelPanel (Mixer* mixer)
 {
     //[Constructor_pre] You can add your own custom stuff here..
+    this->mixer = mixer;
+
     //[/Constructor_pre]
 
     addAndMakeVisible (vuSliderL = new Slider ("vuSliderL"));
@@ -130,7 +132,7 @@ MasterChannelPanel::MasterChannelPanel ()
     channelVolume->setValue(1.0);
 
     link = false;
-    // clf = Session::getInstance()->getLookAndFeel();
+    // clf = Session::mixer()->getLookAndFeel();
     /*
     channelVolume->setLookAndFeel(clf);
     vuSliderL->setLookAndFeel(clf);
@@ -253,7 +255,7 @@ void MasterChannelPanel::sliderValueChanged (Slider* sliderThatWasMoved)
     }
 
     //[UsersliderValueChanged_Post]
-    Mixer::getInstance()->sendChangeMessage();
+    mixer->sendChangeMessage();
     //[/UsersliderValueChanged_Post]
 }
 
@@ -282,7 +284,7 @@ void MasterChannelPanel::buttonClicked (Button* buttonThatWasClicked)
     }
 
     //[UserbuttonClicked_Post]
-    Mixer::getInstance()->sendChangeMessage();
+    mixer->sendChangeMessage();
     //[/UserbuttonClicked_Post]
 }
 
@@ -320,13 +322,13 @@ void MasterChannelPanel::setMagnitude(int channel, float magnitude) {
 
 void MasterChannelPanel::changeListenerCallback(ChangeBroadcaster * source) {
 
-    if(Mixer::getInstance() == source){
+    if(mixer == source){
         
-        if (Mixer::getInstance()->getTracks().size() == 0) {
+        if (mixer->getTracks().size() == 0) {
             return;
         }
 
-        if (Mixer::getInstance()->getLastModifiedTrack() == this->track) {
+        if (mixer->getLastModifiedTrack() == this->track) {
             setName(track->getName());
             nameLabel->setText(track->getName(), juce::NotificationType::dontSendNotification);
             channelVolume->setValue(track->getVolume(), juce::NotificationType::dontSendNotification);

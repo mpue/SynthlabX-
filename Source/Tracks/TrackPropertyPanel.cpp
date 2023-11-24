@@ -32,9 +32,10 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-TrackPropertyPanel::TrackPropertyPanel ()
+TrackPropertyPanel::TrackPropertyPanel (Mixer* mixer)
 {
     //[Constructor_pre] You can add your own custom stuff here..
+    this->mixer = mixer;
     //[/Constructor_pre]
 
     addAndMakeVisible (nameLabel = new Label ("nameLabel",
@@ -368,7 +369,7 @@ void TrackPropertyPanel::sliderValueChanged (Slider* sliderThatWasMoved)
     }
 
     //[UsersliderValueChanged_Post]
-    Mixer::getInstance()->sendChangeMessage();
+    mixer->sendChangeMessage();
     //[/UsersliderValueChanged_Post]
 }
 
@@ -395,8 +396,8 @@ void TrackPropertyPanel::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
                 }
             }
             else if(track->getType() == Track::Type::MIDI) {
-                if (Mixer::getInstance()->getMidiInputs().size() > 0) {
-                    track->setMidiInputDevice(Mixer::getInstance()->getMidiInputs().at(inputCombo->getSelectedId() - 1));
+                if (mixer->getMidiInputs().size() > 0) {
+                    track->setMidiInputDevice(mixer->getMidiInputs().at(inputCombo->getSelectedId() - 1));
                 }
             }
 
@@ -421,8 +422,8 @@ void TrackPropertyPanel::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
             }
             else if(track->getType() == Track::Type::MIDI) {
-                if (Mixer::getInstance()->getMidiOutputs().size() > 0) {
-                    track->setMidiOutputDevice(Mixer::getInstance()->getMidiOutputs().at(outputCombo->getSelectedId() - 1));
+                if (mixer->getMidiOutputs().size() > 0) {
+                    track->setMidiOutputDevice(mixer->getMidiOutputs().at(outputCombo->getSelectedId() - 1));
                 }
             }
 
@@ -500,13 +501,13 @@ void TrackPropertyPanel::changeListenerCallback(ChangeBroadcaster * source) {
     if (MasterChannelPanel* channel = dynamic_cast<MasterChannelPanel*>(source)){
         muteButton->setToggleState(false, juce::NotificationType::dontSendNotification);
     }
-    else if (Mixer::getInstance() == source) {
+    else if (mixer == source) {
 
-        if (Mixer::getInstance()->getTracks().size() == 0) {
+        if (mixer->getTracks().size() == 0) {
             return;
         }
         
-        Track* t = Mixer::getInstance()->getLastModifiedTrack();
+        Track* t = mixer->getLastModifiedTrack();
 
         if (track == t) {
             setName(t->getName());
@@ -522,24 +523,24 @@ void TrackPropertyPanel::changeListenerCallback(ChangeBroadcaster * source) {
 void TrackPropertyPanel::updateChannels() {
 
     if (track->getType() == Track::Type::AUDIO) {
-        StringArray channels = Mixer::getInstance()->getInputChannelNames();
+        StringArray channels = mixer->getInputChannelNames();
 
         for (int i = 0; i < channels.size() - 1; i+=2) {
             inputCombo->addItem(channels.getReference(i) + " + " + channels.getReference(i + 1), i + 1);
         }
 
-        channels = Mixer::getInstance()->getOutputChannelNames();
+        channels = mixer->getOutputChannelNames();
 
         for (int i = 0; i < channels.size() - 1; i+=2) {
             outputCombo->addItem(channels.getReference(i) + " + " + channels.getReference(i + 1), i + 1);
         }
     }
     else if (track->getType() == Track::Type::MIDI) {
-        for (int i = 0; i < Mixer::getInstance()->getMidiInputs().size();i++) {
-            inputCombo->addItem(Mixer::getInstance()->getMidiInputs().at(i), i + 1);
+        for (int i = 0; i < mixer->getMidiInputs().size();i++) {
+            inputCombo->addItem(mixer->getMidiInputs().at(i), i + 1);
         }
-        for (int i = 0; i < Mixer::getInstance()->getMidiOutputs().size();i++) {
-            outputCombo->addItem(Mixer::getInstance()->getMidiOutputs().at(i), i + 1);
+        for (int i = 0; i < mixer->getMidiOutputs().size();i++) {
+            outputCombo->addItem(mixer->getMidiOutputs().at(i), i + 1);
         }
     }
 
@@ -565,7 +566,7 @@ void TrackPropertyPanel::buttonClicked (Button* buttonThatWasClicked) {
     else if(buttonThatWasClicked == monoButton->getButton()) {
         track->setMono(monoButton->getButton()->getToggleState());
 
-        StringArray channels = Mixer::getInstance()->getInputChannelNames();
+        StringArray channels = mixer->getInputChannelNames();
 
         inputCombo->clear();
 
@@ -583,7 +584,7 @@ void TrackPropertyPanel::buttonClicked (Button* buttonThatWasClicked) {
         if (inputCombo->getNumItems() > 0)
             inputCombo->setSelectedId(1);
 
-        channels = Mixer::getInstance()->getOutputChannelNames();
+        channels = mixer->getOutputChannelNames();
 
         outputCombo->clear();
 
@@ -603,7 +604,7 @@ void TrackPropertyPanel::buttonClicked (Button* buttonThatWasClicked) {
 
     }
 
-    Mixer::getInstance()->sendChangeMessage();
+    mixer->sendChangeMessage();
 }
 
 

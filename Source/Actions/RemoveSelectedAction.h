@@ -15,7 +15,7 @@
 class RemoveSelectedAction : public juce::UndoableAction {
     
 public:
-    RemoveSelectedAction(SynthEditor* editor);
+    RemoveSelectedAction(SynthEditor* editor, Mixer* mixer);
     ~RemoveSelectedAction(){};
     
     virtual bool perform() override;
@@ -29,6 +29,7 @@ private:
     Module* module = nullptr;
     std::vector<Connection*> removedConnections;
     std::vector<Module*> removedModules;
+    Mixer* mixer;
 };
 
 
