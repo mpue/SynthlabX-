@@ -56,10 +56,13 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    SynthEditor* getEditor();
+
 private:
     SynthlabAudioProcessor* audioProcessor = nullptr;
     SynthlabXAudioProcessorEditor* synthEditor = nullptr;
     Project* project = nullptr;
+    Mixer* mixer = nullptr;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthlabXAudioProcessor)
 };

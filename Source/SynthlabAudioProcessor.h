@@ -20,7 +20,7 @@ class SynthlabAudioProcessor {
     
 public:
     
-    SynthlabAudioProcessor(float sampleRate, int bufferSize, Project* p);
+    SynthlabAudioProcessor(Project* p, Mixer* mixer);
     virtual ~SynthlabAudioProcessor() ;
     
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate);
@@ -46,6 +46,8 @@ public:
     int getNumActiveChannels(int i);
     int getCpuLoad();
     
+    void prepareModule(Module* m, float sampleRate, int bufferSize);
+
     std::vector<AudioOut*> outputChannels;
     std::vector<AudioIn*> inputChannels;
     std::vector<AuxOut*> auxChannels;
@@ -64,8 +66,8 @@ private:
     int currentSample = 0;
     
     // default settings just in case
-    float sampleRate = 48000;
-    float buffersize = 512;
+    float sampleRate;
+    float buffersize;
       
     
 };

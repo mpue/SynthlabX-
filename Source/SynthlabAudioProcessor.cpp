@@ -21,11 +21,10 @@
 
 #define M_PI 3.141592653589793238
 
-SynthlabAudioProcessor::SynthlabAudioProcessor(float sampleRate, int bufferSize, Project* project) {
-    this->sampleRate = sampleRate;
-    this->buffersize = bufferSize;
+SynthlabAudioProcessor::SynthlabAudioProcessor(Project* project, Mixer* mixer) {
     // a global sampler object which allows us to play audio at any place like for preview for example
     this->project = project;
+    this->mixer = mixer;
 }
 
 SynthlabAudioProcessor::~SynthlabAudioProcessor() {
@@ -35,10 +34,12 @@ SynthlabAudioProcessor::~SynthlabAudioProcessor() {
 //==============================================================================
 void SynthlabAudioProcessor::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
-    Logger::writeToLog("prepare to play with sample rate "+String(sampleRate)+" kHz and buffer size of "+String(buffersize)+" bytes.");
+    Logger::writeToLog("prepare to play with sample rate "+String(sampleRate)+" kHz and buffer size of "+String(samplesPerBlockExpected)+" bytes.");
     
     this->sampleRate = sampleRate;
     this->buffersize = samplesPerBlockExpected;
+
+    prepareModule(project->getRoot(), sampleRate, buffersize);
 }
 
 int SynthlabAudioProcessor::getNumActiveChannels(int i) {
@@ -246,6 +247,9 @@ void SynthlabAudioProcessor::processModule(Module* m) {
     
     if (m != nullptr) {
         
+        m->setSampleRate(sampleRate);
+        m->setBuffersize(buffersize);
+
         m->process();
         
         for (int i = 0; i< m->getModules()->size();i++) {
@@ -255,6 +259,22 @@ void SynthlabAudioProcessor::processModule(Module* m) {
         }
     }
 }
+
+void SynthlabAudioProcessor::prepareModule(Module* m, float sampleRate, int bufferSize) {
+
+    if (m != nullptr) {
+
+        m->setSampleRate(sampleRate);
+        m->setBuffersize(buffersize);
+
+        for (int i = 0; i < m->getModules()->size(); i++) {
+            if (m->getModules()->at(i) != nullptr) {
+                prepareModule(m->getModules()->at(i), sampleRate, bufferSize);
+            }
+        }
+    }
+}
+
 
 void SynthlabAudioProcessor::refreshMidiInputs() {
     //for (int i = 0; i < MidiInput::getDevices().size();i++) {

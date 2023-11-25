@@ -2033,6 +2033,46 @@ void SynthEditor::exportAudio()
 {
 }
 
+void SynthEditor::openFile(juce::String filename)
+{
+	cleanUp();
+	newFile();
+
+	juce::File file = juce::File(filename);
+	std::unique_ptr<XmlElement> xml = XmlDocument(file).getDocumentElement();
+
+	ValueTree v = ValueTree::fromXml(*xml.get());
+	setRunning(false);
+	ModuleUtils::loadStructure(root->getModules(), root->getConnections(), &v, this);
+
+	for (std::vector<Module*>::iterator it = root->getModules()->begin(); it != root->getModules()->end(); ++it) {
+		addAndMakeVisible((*it));
+		configureAudioModule((*it), this);
+		ImageModule* im;
+		if ((im = dynamic_cast<ImageModule*>(*it)) != NULL) {
+			im->toBack();
+		}
+	}
+
+	resized();
+
+	setCurrentLayer(v.getProperty("layer").toString().getIntValue());
+	setLocked(v.getProperty("lock").toString().getIntValue() > 0);
+
+	notifyListeners();
+
+	xml = nullptr;
+
+#if JUCE_IOS
+	updateProject(url);
+#else
+	updateProject(file);
+#endif
+
+	setRunning(true);
+
+}
+
 void SynthEditor::updateProject(File file) {
 
 	project->setCurrentFilePath(file.getFullPathName());

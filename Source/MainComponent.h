@@ -40,7 +40,7 @@ class MainComponent   : public juce::AudioAppComponent,
 {
 public:
     //==============================================================================
-    MainComponent(Project * project);
+    MainComponent(Project * project, Mixer* mixer);
     ~MainComponent();
 
     //==============================================================================

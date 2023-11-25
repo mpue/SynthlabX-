@@ -190,6 +190,8 @@ public:
 
     void exportAudio();
 
+    void openFile(juce::String filename);
+
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 

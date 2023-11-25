@@ -24,7 +24,8 @@ SynthlabXAudioProcessor::SynthlabXAudioProcessor()
 #endif
 {
 	project = new Project();
-
+	mixer = new Mixer();
+	audioProcessor = new SynthlabAudioProcessor(project, mixer);
 
 }
 
@@ -100,8 +101,8 @@ void SynthlabXAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlo
 {
 	// Use this method as the place to do any pre-playback
 	// initialisation that you need..	
-	audioProcessor = new SynthlabAudioProcessor(sampleRate, samplesPerBlock, project);
-	audioProcessor->prepareToPlay(sampleRate, samplesPerBlock);
+	
+	audioProcessor->prepareToPlay(samplesPerBlock, sampleRate);
 }
 
 void SynthlabXAudioProcessor::releaseResources()
@@ -148,7 +149,7 @@ bool SynthlabXAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* SynthlabXAudioProcessor::createEditor()
 {
-	synthEditor = new SynthlabXAudioProcessorEditor(*this, project);
+	synthEditor = new SynthlabXAudioProcessorEditor(*this, project, mixer);
 	
 	return synthEditor;
 }
@@ -156,15 +157,14 @@ juce::AudioProcessorEditor* SynthlabXAudioProcessor::createEditor()
 //==============================================================================
 void SynthlabXAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
-	// You should use this method to store your parameters in the memory block.
-	// You could do that either as raw data, or use the XML or ValueTree classes
-	// as intermediaries to make it easy to save and load complex data.
+	String filename = project->getCurrentFileName();
+	destData.append(filename.getCharPointer(), filename.length());
 }
 
 void SynthlabXAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
-	// You should use this method to restore your parameters from this memory block,
-	// whose contents will have been created by the getStateInformation() call.
+	char* _name = (char*)data;
+	String name = juce::String(_name, sizeInBytes);	
 }
 
 //==============================================================================
@@ -172,4 +172,8 @@ void SynthlabXAudioProcessor::setStateInformation(const void* data, int sizeInBy
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
 	return new SynthlabXAudioProcessor();
+}
+
+SynthEditor* SynthlabXAudioProcessor::getEditor() {
+	return synthEditor->mainComponent->getEditor();
 }

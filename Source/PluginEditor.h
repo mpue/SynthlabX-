@@ -18,13 +18,13 @@ using namespace juce;
 class SynthlabXAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
 public:
-    SynthlabXAudioProcessorEditor (SynthlabXAudioProcessor&, Project* project);
+    SynthlabXAudioProcessorEditor (SynthlabXAudioProcessor&, Project* project, Mixer* mixer);
     ~SynthlabXAudioProcessorEditor() override;
 
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
-
+    void visibilityChanged() override;
     MainComponent* mainComponent = nullptr;
 private:
     // This reference is provided as a quick way for your editor to

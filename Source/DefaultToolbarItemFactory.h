@@ -33,14 +33,14 @@ public:
 		app_layer = 8,
 		mod_sources = 9,
 		app_browser = 10,
-		app_play = 11,
-		app_stop = 12,
-		app_pause = 13,
-		app_record = 14,
-		app_fast_backwards = 15,
-		app_backwards = 16,
-		app_forward = 17,
-		app_fast_forward = 18
+		//app_play = 11,
+		//app_stop = 12,
+		//app_pause = 13,
+		//app_record = 14,
+		//app_fast_backwards = 15,
+		//app_backwards = 16,
+		//app_forward = 17,
+		//app_fast_forward = 18
 
 	};
 
@@ -60,14 +60,14 @@ public:
 		ids.add(app_layer);
 		ids.add(mod_sources);
 		ids.add(app_browser);
-		ids.add(app_play);
-		ids.add(app_stop);
-		ids.add(app_pause);
-		ids.add(app_record);
-		ids.add(app_fast_backwards);
-		ids.add(app_backwards);
-		ids.add(app_forward);
-		ids.add(app_fast_forward);
+		//ids.add(app_play);
+		//ids.add(app_stop);
+		//ids.add(app_pause);
+		//ids.add(app_record);
+		//ids.add(app_fast_backwards);
+		//ids.add(app_backwards);
+		//ids.add(app_forward);
+		//ids.add(app_fast_forward);
 
 	}
 
@@ -86,14 +86,14 @@ public:
 		ids.add(app_layer);
 		ids.add(mod_sources);
 		ids.add(app_browser);
-		ids.add(app_play);
-		ids.add(app_stop);
-		ids.add(app_pause);
-		ids.add(app_record);
-		ids.add(app_fast_backwards);
-		ids.add(app_backwards);
-		ids.add(app_forward);
-		ids.add(app_fast_forward);
+		//ids.add(app_play);
+		//ids.add(app_stop);
+		//ids.add(app_pause);
+		//ids.add(app_record);
+		//ids.add(app_fast_backwards);
+		//ids.add(app_backwards);
+		//ids.add(app_forward);
+		//ids.add(app_fast_forward);
 
 	}
 
@@ -133,30 +133,30 @@ public:
 		case mod_sources:
 			b = new juce::ToolbarButton(itemId, "Sound sources", getImage(itemId), getImage(itemId));
 			return b;
-		case app_stop:
-			b = new juce::ToolbarButton(itemId, "Stop", getImage(itemId), getImage(itemId));
-			return b;
-		case app_play:
-			b = new juce::ToolbarButton(itemId, "Play", getImage(itemId), getImage(itemId));
-			return b;
-		case app_pause:
-			b = new juce::ToolbarButton(itemId, "Pause", getImage(itemId), getImage(itemId));
-			return b;
-		case app_record:
-			b = new juce::ToolbarButton(itemId, "Record", getImage(itemId), getImage(itemId));
-			return b;
-		case app_fast_backwards:
-			b = new juce::ToolbarButton(itemId, "Fast back", getImage(itemId), getImage(itemId));
-			return b;
-		case app_fast_forward:
-			b = new juce::ToolbarButton(itemId, "Fast forward", getImage(itemId), getImage(itemId));
-			return b;
-		case app_backwards:
-			b = new juce::ToolbarButton(itemId, "Back", getImage(itemId), getImage(itemId));
-			return b;
-		case app_forward:
-			b = new juce::ToolbarButton(itemId, "Forward", getImage(itemId), getImage(itemId));
-			return b;
+		//case app_stop:
+		//	b = new juce::ToolbarButton(itemId, "Stop", getImage(itemId), getImage(itemId));
+		//	return b;
+		//case app_play:
+		//	b = new juce::ToolbarButton(itemId, "Play", getImage(itemId), getImage(itemId));
+		//	return b;
+		//case app_pause:
+		//	b = new juce::ToolbarButton(itemId, "Pause", getImage(itemId), getImage(itemId));
+		//	return b;
+		//case app_record:
+		//	b = new juce::ToolbarButton(itemId, "Record", getImage(itemId), getImage(itemId));
+		//	return b;
+		//case app_fast_backwards:
+		//	b = new juce::ToolbarButton(itemId, "Fast back", getImage(itemId), getImage(itemId));
+		//	return b;
+		//case app_fast_forward:
+		//	b = new juce::ToolbarButton(itemId, "Fast forward", getImage(itemId), getImage(itemId));
+		//	return b;
+		//case app_backwards:
+		//	b = new juce::ToolbarButton(itemId, "Back", getImage(itemId), getImage(itemId));
+		//	return b;
+		//case app_forward:
+		//	b = new juce::ToolbarButton(itemId, "Forward", getImage(itemId), getImage(itemId));
+		//	return b;
 
 		default:
 			break;
@@ -189,7 +189,7 @@ public:
 			di->setImage(juce::ImageCache::getFromMemory(BinaryData::saw_png, BinaryData::saw_pngSize));
 		else if (itemId == app_browser)
 			di->setImage(juce::ImageCache::getFromMemory(BinaryData::module_png, BinaryData::module_pngSize));
-		else if (itemId == app_play)
+		/*else if (itemId == app_play)
 			di->setImage(juce::ImageCache::getFromMemory(BinaryData::playsolid_png, BinaryData::playsolid_pngSize));
 		else if (itemId == app_stop)
 			di->setImage(juce::ImageCache::getFromMemory(BinaryData::stop_png, BinaryData::stop_pngSize));
@@ -204,13 +204,13 @@ public:
 		else if (itemId == app_backwards)
 			di->setImage(juce::ImageCache::getFromMemory(BinaryData::backwardsolid_png, BinaryData::backwardsolid_pngSize));
 		else if (itemId == app_forward)
-			di->setImage(juce::ImageCache::getFromMemory(BinaryData::forwardsolid_png, BinaryData::forwardsolid_pngSize));
+			di->setImage(juce::ImageCache::getFromMemory(BinaryData::forwardsolid_png, BinaryData::forwardsolid_pngSize));*/
 
 		return di;
 	}
 
 	int numItems() {
-		return 18;
+		return 10;
 	}
 
 };

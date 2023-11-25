@@ -19,7 +19,7 @@ using juce::Graphics;
 using juce::ResizableWindow;
 
 //==============================================================================
-EditorComponent::EditorComponent(float sampleRate, int bufferSize, PropertyView* properties, juce::UndoManager* undoManager, ApplicationCommandManager* commandManager, Project* project) : resizerBar(&stretchableManager, 1, false)
+EditorComponent::EditorComponent(float sampleRate, int bufferSize, PropertyView* properties, juce::UndoManager* undoManager, ApplicationCommandManager* commandManager, Project* project,Mixer* mixer) : resizerBar(&stretchableManager, 1, false)
 {
 	this->bufferSize = bufferSize;
 	this->sampleRate = sampleRate;
@@ -29,6 +29,7 @@ EditorComponent::EditorComponent(float sampleRate, int bufferSize, PropertyView*
 	bottomTab = new MainTabbedComponent();
 
 	editor = new SynthEditor(sampleRate, bufferSize, undoManager, bottomTab, commandManager, project);
+	editor->setMixer(mixer);
 	editorView = new Viewport();
 
 	editorView->setSize(500, 200);
@@ -39,8 +40,7 @@ EditorComponent::EditorComponent(float sampleRate, int bufferSize, PropertyView*
 	editorView->setMouseClickGrabsKeyboardFocus(false);
 
 	topTab->addTab("Editor", juce::Colours::grey, editorView, false);
-
-	Mixer* mixer = new Mixer();
+	
 	mixerPanel = new MixerPanel();
 	mixerPanel->setMixer(mixer);
 
@@ -53,7 +53,6 @@ EditorComponent::EditorComponent(float sampleRate, int bufferSize, PropertyView*
 
 	editor->setMixerPanel(mixerPanel);
 	editor->addChangeListener(this);
-	editor->setMixer(mixer);
 
 	bottomTab->addTab("Mixer", Colours::darkgrey, mixerView, false);
 
