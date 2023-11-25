@@ -211,10 +211,6 @@ void SynthEditor::mouseMove(const MouseEvent& e)
 
 void SynthEditor::mouseDown(const MouseEvent& e)
 {
-	if (locked) {
-		return;
-	}
-
 	mouseDownX = e.getPosition().getX();
 	mouseDownY = e.getPosition().getY();
 
@@ -264,10 +260,6 @@ void SynthEditor::mouseDown(const MouseEvent& e)
 void SynthEditor::mouseDrag(const MouseEvent& e)
 {
 
-	if (locked) {
-		return;
-	}
-
 	dragHasStarted = true;
 
 	mouseX = e.getPosition().getX();
@@ -283,8 +275,11 @@ void SynthEditor::mouseDrag(const MouseEvent& e)
 		checkForConnectionDrag();
 	}
 
+
 	if (state == SelectionModel::State::MOVING_SELECTION) {
-		moveSelection(e);
+		if (!locked) {
+			moveSelection(e);
+		}
 	}
 	else {
 		for (int i = 0; i < root->getModules()->size(); i++) {
