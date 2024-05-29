@@ -21,16 +21,16 @@
 #include "Mixer.h"
 #include "Actions/RemoveSelectedAction.h"
 #include "Actions/AddModuleAction.h"
-#include "ModuleBrowser.h"
-#include "PitchBendModule.h"
-#include "ModuleUtils.h"
+#include "Modules/ModuleBrowser.h"
+#include "Modules/PitchBendModule.h"
+#include "Modules/ModuleUtils.h"
 #include "MidiClock.h"
 
 #ifndef M_PI
 #define M_PI       3.14159265358979323846 
 #endif
 #include <Plugins/PluginManager.h>
-#include <PluginModule.cpp>
+#include <Modules/PluginModule.cpp>
 using juce::String;
 using juce::File;
 using juce::MenuBarComponent;

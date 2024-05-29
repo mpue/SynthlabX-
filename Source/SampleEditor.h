@@ -2,7 +2,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "AudioThumbnailComponent.h"
-#include "SamplerModule.h"
+#include "Modules/SamplerModule.h"
 #include "AudioManager.h"
 #include "Project/Project.h"
 

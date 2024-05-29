@@ -8,9 +8,9 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "../Module.h"
+#include "../Modules/Module.h"
 #include "../SynthEditor.h"
-#include "../ModuleUtils.h"
+#include "../Modules/ModuleUtils.h"
 
 class RemoveSelectedAction : public juce::UndoableAction {
     

@@ -11,7 +11,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "../SynthEditor.h"
-#include "../Module.h"
+#include "../Modules/Module.h"
 
 class AddConnectionAction : public juce::UndoableAction {
     

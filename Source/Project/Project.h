@@ -18,7 +18,7 @@
 #include "MainTabbedComponent.h"
 #include "AudioEngine/Sampler.h"
 #include "PropertyView.h"
-#include "Module.h"
+#include "Modules/Module.h"
 
 #include <vector>
 #include <map>

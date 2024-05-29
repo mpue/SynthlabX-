@@ -8,7 +8,7 @@
 #ifndef SelectionModel_h
 #define SelectionModel_h
 
-#include "Module.h"
+#include "Modules/Module.h"
 #include "../JuceLibraryCode/JuceHeader.h"
 
 class SelectionModel {

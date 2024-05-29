@@ -6,13 +6,13 @@
 //
 
 #include "DuplicateModuleAction.h"
-#include "../Module.h"
+#include "../Modules/Module.h"
 #include "../AudioOut.h"
 #include "../AudioIn.h"
 #include "../AuxOut.h"
 #include "../PrefabFactory.h"
 #include "../AudioManager.h"
-#include "../ModuleUtils.h"
+#include "../Modules/ModuleUtils.h"
 
 using juce::String;
 

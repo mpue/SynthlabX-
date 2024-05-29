@@ -9,7 +9,7 @@
 #define PrefabFactory_hpp
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "Module.h"
+#include "Modules/Module.h"
 #include "Tracks/TrackNavigator.h"
 
 #include <map>

@@ -10,12 +10,12 @@
 
 #include "SynthlabAudioProcessor.h"
 #include "SynthEditor.h"
-#include "Module.h"
+#include "Modules/Module.h"
 #include "AudioEngine/Sampler.h"
 #include "Mixer.h"
 #include "MidiClock.h"
 #include "MidiGate.h"
-#include "PitchBendModule.h"
+#include "Modules/PitchBendModule.h"
 #include "MidiNote.h"
 #include "Knob.h"
 

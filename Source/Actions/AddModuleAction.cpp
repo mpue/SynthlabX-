@@ -6,14 +6,14 @@
 //
 
 #include "AddModuleAction.h"
-#include "../Module.h"
+#include "../Modules/Module.h"
 #include "../AudioOut.h"
 #include "../AudioIn.h"
 #include "../AuxOut.h"
 #include "../PrefabFactory.h"
 #include "../AudioManager.h"
-#include "../TerminalModule.h"
-#include "../ImageModule.h"
+#include "../Modules/TerminalModule.h"
+#include "../Modules/ImageModule.h"
 #include "../Mixer.h"
 
 using juce::String;

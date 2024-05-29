@@ -18,7 +18,7 @@
 #include "ToolbarComboBox.h"
 #include "EditorComponent.h"
 #include "DefaultToolbarItemFactory.h"
-#include "ModuleBrowser.h"
+#include "Modules/ModuleBrowser.h"
 #include "AudioEngine/ADSR.h"
 #include <map>
 //==============================================================================

@@ -11,7 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "Module.h"
+#include "Modules/Module.h"
 #include "VolumeAdjustable.h"
 #include "Tracks/Track.h"
 #include "Tracks/TrackNavigator.h"

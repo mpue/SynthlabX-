@@ -8,7 +8,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "../Module.h"
+#include "../Modules/Module.h"
 #include "../SynthEditor.h"
 
 class DuplicateModuleAction : public juce::UndoableAction {
