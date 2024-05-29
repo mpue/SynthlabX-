@@ -165,6 +165,9 @@ void SynthlabXAudioProcessor::setStateInformation(const void* data, int sizeInBy
 {
 	char* _name = (char*)data;
 	String name = juce::String(_name, sizeInBytes);	
+
+	std::cout << name.toStdString() << std::endl;
+		
 }
 
 //==============================================================================

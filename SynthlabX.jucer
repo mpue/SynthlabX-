@@ -82,6 +82,14 @@
       <FILE id="WSOFPc" name="whitenoise.png" compile="0" resource="1" file="Images/whitenoise.png"/>
     </GROUP>
     <GROUP id="{EE20C8C0-B3A3-F08F-9AE2-C16709287CA6}" name="Source">
+      <FILE id="GziaFa" name="PluginModule.cpp" compile="1" resource="0"
+            file="Source/PluginModule.cpp"/>
+      <FILE id="lIVY9L" name="PluginModule.h" compile="0" resource="0" file="Source/PluginModule.h"/>
+      <GROUP id="{6470483B-A129-27A2-2176-9939C73AD3C6}" name="Plugins">
+        <FILE id="We81uk" name="PluginManager.cpp" compile="1" resource="0"
+              file="Source/Plugins/PluginManager.cpp"/>
+        <FILE id="tb8Vn2" name="PluginManager.h" compile="0" resource="0" file="Source/Plugins/PluginManager.h"/>
+      </GROUP>
       <FILE id="ctrZQB" name="AdderModule.cpp" compile="1" resource="0" file="Source/AdderModule.cpp"/>
       <FILE id="U4J5IS" name="AdderModule.h" compile="0" resource="0" file="Source/AdderModule.h"/>
       <FILE id="VrZDC1" name="AddValueModule.cpp" compile="1" resource="0"
@@ -578,7 +586,8 @@
       <FILE id="BBLkMp" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
     </GROUP>
   </MAINGROUP>
-  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"
+               JUCE_PLUGINHOST_VST="1" JUCE_PLUGINHOST_VST3="1" JUCE_CUSTOM_VST3_SDK="0"/>
   <EXPORTFORMATS>
     <VS2019 targetFolder="Builds/VisualStudio2019" externalLibraries="d:/devel/Synthlab/lib/librubberband-debug.lib"
             vstLegacyFolder="..\vstsdk2.4">

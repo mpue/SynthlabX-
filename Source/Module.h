@@ -125,9 +125,11 @@ public:
     
     virtual void setSampleRate(float rate);
     virtual void setBuffersize(int buffersize);
-    
+        
+
     virtual void setLocked(bool locked) {
         this->locked = locked;
+        // setInterceptsMouseClicks(locked, !locked);
     }
     
     virtual Layer getLayer() {

@@ -57,6 +57,7 @@
 #include "TextInputModule.h"
 #include "CompareModule.h"
 #include "TrackIn.h"
+#include "PluginModule.h"
 
 using juce::Image;
 
@@ -171,9 +172,9 @@ Module* PrefabFactory::getPrefab(int id, float sampleRate, int bufferSize) {
         m = new DistortionModule(sampleRate,bufferSize);
     }
 #if defined(JUCE_PLUGINHOST_AU) || defined(JUCE_PLUGINHOST_VST)
-    //else if (prefabs[id].getName() == "Plugin") {
-    //    m = new PluginModule(sampleRate,bufferSize);
-    //}
+    else if (prefabs[id].getName() == "Plugin") {
+        m = new PluginModule(sampleRate,bufferSize);
+    }
 #endif
     else if (prefabs[id].getName() == "Step sequencer") {
         m = new StepSequencerModule(sampleRate,bufferSize);

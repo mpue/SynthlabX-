@@ -37,6 +37,7 @@
 #include "AudioRecorderModule.h"
 #include "ImageModule.h"
 #include "AudioRecorderEditor.h"
+#include "PluginModule.h"
 
 class SampleEditor;
 
@@ -451,11 +452,11 @@ void SynthEditor::mouseDoubleClick(const MouseEvent& e)
 					openSampleEditor(sm);
 				}
 
-				//PluginModule* pm = dynamic_cast<PluginModule*>(m);
+				PluginModule* pm = dynamic_cast<PluginModule*>(m);
 
-				//if (pm != NULL) {
-				//	pm->openPluginWindow();
-				//}
+				if (pm != NULL) {
+					pm->openPluginWindow();
+				}
 
 				StepSequencerModule* ssm = dynamic_cast<StepSequencerModule*>(m);
 
@@ -549,7 +550,9 @@ void SynthEditor::showContextMenu(Point<int> position) {
 				if ((k = dynamic_cast<Knob*>(module)) != NULL) {
 					m->addItem(3, "MIDI learn");
 					m->addCommandItem(commandManager, SynthEditor::CommandIds::RESET_GUI_POS);
+					m->addItem(7, "Unlock");
 				}
+
 			}
 
 			const int result = m->show();
@@ -575,6 +578,10 @@ void SynthEditor::showContextMenu(Point<int> position) {
 			else if (result == 6) {
 				saveModule(selectionModel.getSelectedModule());
 			}
+			else if (result == 7) {
+				k->setEnabled(true);
+			}
+
 		}
 		else {
 			m->addItem(1, "Add control");
@@ -1330,13 +1337,11 @@ void SynthEditor::openFile() {
 		resized();
 
 		setCurrentLayer(v.getProperty("layer").toString().getIntValue());
-		setLocked(v.getProperty("lock").toString().getIntValue() > 0);
+		// setLocked(v.getProperty("lock").toString().getIntValue() > 0);
 
 		notifyListeners();
 
 		xml = nullptr;
-
-
 
 		openTracks(file);
 
@@ -2034,6 +2039,11 @@ void SynthEditor::openFile(juce::String filename)
 	newFile();
 
 	juce::File file = juce::File(filename);
+
+	if (!file.exists()) {
+		return;
+	}
+
 	std::unique_ptr<XmlElement> xml = XmlDocument(file).getDocumentElement();
 
 	ValueTree v = ValueTree::fromXml(*xml.get());

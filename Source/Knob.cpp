@@ -42,15 +42,15 @@ Knob::Knob()
     
     slider->setTopLeftPosition(getWidth() / 2 - slider->getWidth() / 2, getHeight() / 2 - slider->getHeight()/2);
     
+    setInterceptsMouseClicks(false, true);
+
     addAndMakeVisible(slider);
     addAndMakeVisible(valueLabel);
     valueLabel->toFront(false);
     
-    setInterceptsMouseClicks(true,true);
-    
     createProperties();
     
-    editable = false;
+    editable = true;
     prefab = true;
     setStepSize(1);
     setMinimum(0);
@@ -58,7 +58,6 @@ Knob::Knob()
     
     setCurrentLayer(Layer::ALL);
     
-    slider->setEnabled(false);
     
 }
 
@@ -180,7 +179,6 @@ void Knob::setCurrentLayer(Module::Layer layer) {
         slider->setTopLeftPosition(2,2);
         nameLabel->setTopLeftPosition(30 ,2);
         valueLabel->setVisible(false);
-        setInterceptsMouseClicks(false,false);
     }
     else {
         // GUI Mode
@@ -190,7 +188,6 @@ void Knob::setCurrentLayer(Module::Layer layer) {
         nameLabel->setFont(Font(9));
         nameLabel->setTopLeftPosition(2 ,2);
         valueLabel->setVisible(true);
-        setInterceptsMouseClicks(false,false);
     }
 }
 
@@ -305,10 +302,10 @@ juce::Array<PropertyComponent*>& Knob::getProperties() {
     
     properties = juce::Array<PropertyComponent*>();
     
-    valueProp = new SliderPropertyComponent(*valueValue,"Value",-65535,65535,0.01,1.0,true);
-    minValueProp = new SliderPropertyComponent(*minValue,"Minimum",-10000,15000,0.01,1.0,true);
-    maxValueProp = new SliderPropertyComponent(*maxValue,"Maximum",-10000,15000,0.01,1.0,true);
-    stepsizeValueProp = new SliderPropertyComponent(*stepsizeValue,"Stepsize",0.001,10000,0.01,1.0,true);
+    valueProp = new SliderPropertyComponent(*valueValue,"Value",-128,128,1,1.0,true);
+    minValueProp = new SliderPropertyComponent(*minValue,"Minimum",-10000,15000,1,1.0,true);
+    maxValueProp = new SliderPropertyComponent(*maxValue,"Maximum",-10000,15000,1,1.0,true);
+    stepsizeValueProp = new SliderPropertyComponent(*stepsizeValue,"Stepsize",0.1,10000,1,1.0,true);
     isControllerValueProp = new BooleanPropertyComponent(*isControllerValue,"isController","Is controller");
     controllerValueProp = new SliderPropertyComponent(*controllerValue,"Controller number",0,127,1,1.0,true);
     nameValueProp = new TextPropertyComponent(*nameValue,"Name",16, false,true);

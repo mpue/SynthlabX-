@@ -30,7 +30,7 @@ public:
     void sliderValueChanged (juce::Slider* slider) override;
     virtual juce::String getCategory() override {
         return "Controls";
-    }
+    } 
 
     void setStepSize(float stepsize);
     void setMinimum(float min);
@@ -73,8 +73,9 @@ public:
     };
     
     virtual void setLocked(bool locked) override {
+        Logger::getCurrentLogger()->writeToLog("Locked : " + locked ? "yes" : "no");
         this->locked = locked;
-        this->slider->setEnabled(locked);
+        // this->slider->setEnabled(locked);
         setInterceptsMouseClicks(locked, locked);
     }
     

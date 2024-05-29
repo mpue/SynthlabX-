@@ -56,10 +56,7 @@ SliderModule::SliderModule()
     setMinimum(0);
     setMaximum(127);
     
-    setCurrentLayer(Layer::ALL);
-    
-    slider->setEnabled(false);
-    
+    setCurrentLayer(Layer::ALL);        
 }
 
 void SliderModule::createProperties() {
@@ -186,7 +183,6 @@ void SliderModule::setCurrentLayer(Module::Layer layer) {
         slider->setTopLeftPosition(2,2);
         nameLabel->setTopLeftPosition(30 ,2);
         valueLabel->setVisible(false);
-        setInterceptsMouseClicks(false,false);
     }
     else {
         // GUI Mode
@@ -196,7 +192,6 @@ void SliderModule::setCurrentLayer(Module::Layer layer) {
         nameLabel->setFont(Font(9));
         nameLabel->setTopLeftPosition(2 ,2);
         valueLabel->setVisible(true);
-        setInterceptsMouseClicks(false,false);
     }
 }
 

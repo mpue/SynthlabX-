@@ -29,6 +29,8 @@
 #ifndef M_PI
 #define M_PI       3.14159265358979323846 
 #endif
+#include <Plugins/PluginManager.h>
+#include <PluginModule.cpp>
 using juce::String;
 using juce::File;
 using juce::MenuBarComponent;
@@ -284,6 +286,7 @@ void MainComponent::createStudioLayout() {
 		-0.8);
 
 #if defined(JUCE_PLUGINHOST_AU) || defined(JUCE_PLUGINHOST_VST)
+	pluginMenu = PluginManager::getInstance()->buildPluginMenu();
 #endif
 	editor->updateProject(File());
 
@@ -694,7 +697,7 @@ void MainComponent::menuItemSelected(int menuItemID, int topLevelMenuIndex) {
 
 #if defined(JUCE_PLUGINHOST_AU) || defined(JUCE_PLUGINHOST_VST)
 	else if (menuItemID == 200) {
-		// PluginManager::getInstance()->scanPlugins();
+		PluginManager::getInstance()->scanPlugins();
 	}
 #endif
 	else if (menuItemID == 201) {
@@ -716,18 +719,18 @@ void MainComponent::menuItemSelected(int menuItemID, int topLevelMenuIndex) {
 
 	}
 #if defined(JUCE_PLUGINHOST_AU) || defined(JUCE_PLUGINHOST_VST)
-	//else if (menuItemID > 100 && menuItemID < 999) {
-	//	String pluginName = PluginManager::getInstance()->getAvailablePlugins().at(menuItemID - 100);
+	else if (menuItemID > 100 && menuItemID < 999) {
+		String pluginName = PluginManager::getInstance()->getAvailablePlugins().at(menuItemID - 100);
 
-	//	if (editor->getSelectionModel().getSelectedModule() != nullptr) {
-	//		PluginModule* pm = dynamic_cast<PluginModule*>(editor->getSelectionModel().getSelectedModule());
+		if (editor->getSelectionModel().getSelectedModule() != nullptr) {
+			PluginModule* pm = dynamic_cast<PluginModule*>(editor->getSelectionModel().getSelectedModule());
 
-	//		if (pm != NULL) {
-	//			pm->selectPlugin(pluginName);
-	//		}
-	//	}
+			if (pm != NULL) {
+				pm->selectPlugin(pluginName);
+			}
+		}
 
-	//}
+	}
 #endif
 	else if (menuItemID == 999) {
 		JUCEApplication::getInstance()->shutdown();
